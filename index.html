@@ -166,13 +166,13 @@ td.padded { padding: 8px 10px; }
 .stripe-shorts { background: var(--shorts-stripe); }
 .stripe-regular { background: var(--regular-stripe); }
 
-.rank-cell { padding: 10px 12px !important; font-family: var(--fm); font-size: 12px; color: var(--muted); text-align: center; width: 40px; }
+.rank-cell { padding: 12px 12px !important; font-family: var(--fm); font-size: 13px; color: var(--muted); text-align: center; width: 40px; }
 
-.name-cell { padding: 10px 12px !important; }
+.name-cell { padding: 12px 12px !important; }
 .name-wrap { display: flex; align-items: center; gap: 9px; }
-.ch-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg4); }
-.ch-avatar-placeholder { width: 34px; height: 34px; border-radius: 50%; background: var(--bg4); flex-shrink: 0; }
-.name-link { color: var(--text); text-decoration: none; font-family: var(--fh); font-size: 16px; font-weight: 600; letter-spacing: .02em; }
+.ch-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg4); }
+.ch-avatar-placeholder { width: 38px; height: 38px; border-radius: 50%; background: var(--bg4); flex-shrink: 0; }
+.name-link { color: var(--text); text-decoration: none; font-family: var(--fh); font-size: 17px; font-weight: 600; letter-spacing: .02em; }
 .name-link:hover { color: var(--accent); }
 .type-tag {
   font-size: 9px; font-family: var(--fm); padding: 2px 6px; border-radius: 3px;
@@ -181,13 +181,15 @@ td.padded { padding: 8px 10px; }
 .tag-shorts { background: rgba(244,63,94,.15); color: var(--shorts-stripe); border: 1px solid rgba(244,63,94,.25); }
 .tag-regular { background: rgba(79,140,255,.15); color: var(--regular-stripe); border: 1px solid rgba(79,140,255,.25); }
 
-.num { padding: 10px 12px !important; font-family: var(--fm); font-size: 13px; text-align: right; color: var(--text); }
+.num { padding: 10px 12px !important; font-family: var(--fm); font-size: 14px; text-align: right; color: var(--text); }
 .num.muted { color: var(--muted); }
+.num-c { padding: 10px 12px !important; font-family: var(--fm); font-size: 14px; text-align: center; color: var(--text); }
+.num-c.muted { color: var(--muted); }
 
-.growth-cell { padding: 10px 12px !important; text-align: right; }
+.growth-cell { padding: 10px 12px !important; text-align: center; }
 .gpill {
-  display: inline-block; padding: 3px 9px; border-radius: 4px;
-  font-size: 11px; font-weight: 600; font-family: var(--fm); letter-spacing: .04em;
+  display: inline-block; padding: 4px 10px; border-radius: 4px;
+  font-size: 12px; font-weight: 600; font-family: var(--fm); letter-spacing: .04em;
 }
 .gm    { background: rgba(244,114,182,.15); color: var(--g-mega);  border: 1px solid rgba(244,114,182,.35); }
 .g100k { background: rgba(192,132,252,.15); color: var(--g-100k); border: 1px solid rgba(192,132,252,.35); }
@@ -365,8 +367,7 @@ td.padded { padding: 8px 10px; }
 <div class="stats-bar">
   <div class="stat"><span class="stat-lbl">Creators</span><span class="stat-val" id="s-count">—</span></div>
   <div class="stat"><span class="stat-lbl">Total Subs</span><span class="stat-val" id="s-subs">—</span></div>
-  <div class="stat"><span class="stat-lbl">Top Growth 30d</span><span class="stat-val" id="s-topg">—</span></div>
-  <div class="stat"><span class="stat-lbl">Total Views 30d</span><span class="stat-val" id="s-v30">—</span></div>
+  <div class="stat"><span class="stat-lbl">Total Views</span><span class="stat-val" id="s-totalviews">—</span></div>
   <div class="stat"><span class="stat-lbl">Active / Uploading</span><span class="stat-val" id="s-active">—</span></div>
   <div class="stat"><span class="stat-lbl">Data Coverage</span><span class="stat-val" id="s-cov">—</span></div>
 </div>
@@ -454,12 +455,12 @@ td.padded { padding: 8px 10px; }
         <th style="width:3px;padding:0;cursor:default"></th>
         <th onclick="sortBy('rank')" id="th-rank" style="width:36px">#<span class="sa">↕</span></th>
         <th onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
-        <th onclick="sortBy('subscribers')" id="th-subscribers" style="text-align:right">Subscribers<span class="sa">↕</span></th>
-        <th onclick="sortBy('growth30')" id="th-growth30" style="text-align:right">Growth<span class="sa">↕</span></th>
-        <th onclick="sortBy('totalViews')" id="th-totalViews" style="text-align:right">Total Views<span class="sa">↕</span></th>
-        <th onclick="sortBy('views30')" id="th-views30" style="text-align:right">Views 30d<span class="sa">↕</span></th>
-        <th>Language</th>
-        <th onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
+        <th onclick="sortBy('subscribers')" id="th-subscribers" style="text-align:center">Subscribers<span class="sa">↕</span></th>
+        <th onclick="sortBy('totalViews')" id="th-totalViews" style="text-align:center">Total Views<span class="sa">↕</span></th>
+        <th onclick="sortBy('growth30')" id="th-growth30" style="text-align:center">Growth<span class="sa">↕</span></th>
+        <th onclick="sortBy('views30')" id="th-views30" style="text-align:center">Views 30d<span class="sa">↕</span></th>
+        <th style="text-align:center">Language</th>
+        <th onclick="sortBy('uploading')" id="th-uploading" style="text-align:center">Uploading<span class="sa">↕</span></th>
         <th style="width:32px"></th>
       </tr>
     </thead>
@@ -1025,13 +1026,8 @@ function renderStats() {
   document.getElementById('s-count').textContent = n;
   const ts = creators.reduce((a,c) => a + (c.subscribers||0), 0);
   document.getElementById('s-subs').textContent = fmtN(ts);
-  const tg = creators.filter(c=>c.growth30!=null);
-  if (tg.length) {
-    const top = tg.reduce((a,b) => (b.growth30>a.growth30?b:a));
-    document.getElementById('s-topg').textContent = `+${fmtN(top.growth30)} (${top.name})`;
-  } else document.getElementById('s-topg').textContent = '—';
-  const tv = creators.reduce((a,c)=>a+(c.views30||0),0);
-  document.getElementById('s-v30').textContent = fmtN(tv);
+  const totalV = creators.reduce((a,c)=>a+(c.totalViews||0),0);
+  document.getElementById('s-totalviews').textContent = fmtN(totalV);
   const act = creators.filter(c=>c.uploading==='yes').length;
   document.getElementById('s-active').textContent = `${act} / ${n}`;
   const cov = creators.filter(c=>c.subscribers!=null).length;
@@ -1086,10 +1082,10 @@ function render() {
     const lang = (c.language && c.language.toLowerCase()!=='english')
       ? `<span class="lang-tag">${c.language}</span>` : `<span style="font-size:9px;color:var(--muted);font-family:var(--fm)">EN</span>`;
     const uplHtml = c.uploading==='yes'
-      ? `<td class="upl"><span class="dot d-yes"></span>Yes</td>`
+      ? `<td class="upl" style="text-align:center"><span class="dot d-yes"></span>Yes</td>`
       : c.uploading==='rare'
-      ? `<td class="upl"><span class="dot d-rare"></span>Rarely</td>`
-      : `<td class="upl"><span class="dot d-no"></span>Stopped</td>`;
+      ? `<td class="upl" style="text-align:center"><span class="dot d-rare"></span>Rarely</td>`
+      : `<td class="upl" style="text-align:center"><span class="dot d-no"></span>Stopped</td>`;
     const avatarHtml = c.avatar
       ? `<img class="ch-avatar" src="${c.avatar}" alt="" loading="lazy" onerror="this.style.display='none'">`
       : `<div class="ch-avatar-placeholder"></div>`;
@@ -1102,11 +1098,11 @@ function render() {
       <td class="stripe-cell"><div class="type-stripe ${sc}"></div></td>
       <td class="rank-cell">${rank}</td>
       <td class="name-cell"><div class="name-wrap">${avatarHtml}<a class="name-link" href="${c.url||'#'}" target="_blank" rel="noopener">${c.name}</a>${tt}${c.name.toLowerCase()==='xtrapnation'?'<span style="font-size:8px;font-family:var(--fm);padding:2px 5px;border-radius:3px;background:rgba(52,224,160,.15);color:var(--green);border:1px solid rgba(52,224,160,.3);letter-spacing:.05em">CURATOR</span>':''}</div></td>
-      <td class="num ${c.subscribers==null?'muted':''}">${c.subscribers!=null?fmtN(c.subscribers):'—'}</td>
+      <td class="num-c ${c.subscribers==null?'muted':''}">${c.subscribers!=null?fmtN(c.subscribers):'—'}</td>
+      <td class="num-c ${c.totalViews==null?'muted':''}">${c.totalViews!=null?fmtN(c.totalViews):'—'}</td>
       <td class="growth-cell">${growthHtml}</td>
-      <td class="num ${c.totalViews==null?'muted':''}">${c.totalViews!=null?fmtN(c.totalViews):'—'}</td>
-      <td class="num ${c.views30==null?'muted':''}">${c.views30!=null?fmtN(c.views30):'—'}</td>
-      <td class="padded">${lang}</td>
+      <td class="num-c ${c.views30==null?'muted':''}">${c.views30!=null?fmtN(c.views30):'—'}</td>
+      <td class="padded" style="text-align:center">${lang}</td>
       ${uplHtml}
       <td><button class="fetch-one-btn" data-id="${c.id}" onclick="fetchOne(${c.id})" title="Fetch stats for ${c.name}">⤓</button><button class="edit-btn" onclick="openEdit(${c.id})">✎</button></td>
     </tr>`;
@@ -1266,10 +1262,10 @@ function flashRow(creatorId) {
     const btn = row.querySelector('.edit-btn');
     if (btn && btn.getAttribute('onclick') === `openEdit(${c.id})`) {
       const cells = row.querySelectorAll('td');
-      if (cells[3]) { cells[3].textContent = c.subscribers != null ? fmtN(c.subscribers) : '—'; cells[3].className = 'num' + (c.subscribers==null?' muted':''); }
-      if (cells[4]) cells[4].innerHTML = `<span class="gpill ${gc(fmtDelta(c))}">${fmtG(fmtDelta(c))}</span>`;
-      if (cells[5]) { cells[5].textContent = c.totalViews  != null ? fmtN(c.totalViews)  : '—'; cells[5].className = 'num' + (c.totalViews==null?' muted':''); }
-      if (cells[6]) { cells[6].textContent = c.views30 != null ? fmtN(c.views30) : '—'; cells[6].className = 'num' + (c.views30==null?' muted':''); }
+      if (cells[3]) { cells[3].textContent = c.subscribers != null ? fmtN(c.subscribers) : '—'; cells[3].className = 'num-c' + (c.subscribers==null?' muted':''); }
+      if (cells[4]) { cells[4].textContent = c.totalViews  != null ? fmtN(c.totalViews)  : '—'; cells[4].className = 'num-c' + (c.totalViews==null?' muted':''); }
+      if (cells[5]) cells[5].innerHTML = `<span class="gpill ${gc(fmtDelta(c))}">${fmtG(fmtDelta(c))}</span>`;
+      if (cells[6]) { cells[6].textContent = c.views30 != null ? fmtN(c.views30) : '—'; cells[6].className = 'num-c' + (c.views30==null?' muted':''); }
       row.style.transition = 'background .2s';
       row.style.background = 'rgba(52,224,160,0.13)';
       setTimeout(() => { row.style.background = ''; }, 900);
@@ -1376,7 +1372,7 @@ function openAdd() {
   editId = null;
   document.getElementById('modal-title').textContent = 'Add Creator';
   document.getElementById('del-btn').style.display = 'none';
-  ['f-name','f-url','f-subs','f-tv','f-g30','f-v30','f-sb'].forEach(id => document.getElementById(id).value='');
+  ['f-name','f-url','f-subs','f-tv','f-g30','f-v30','f-sb'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   document.getElementById('m-lang').value = 'English';
   document.getElementById('f-upl').value = 'yes';
   document.getElementById('f-ctype').value = 'regular';
@@ -1401,11 +1397,12 @@ function openEdit(id) {
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function pn(v) { const n=Number(v); return (v===''||v==null||isNaN(n))?null:n; }
-function saveC() {
+async function saveC() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('Name required.'); return; }
   const obj = {
-    name, url: document.getElementById('f-url').value.trim(),
+    name,
+    url: document.getElementById('f-url').value.trim(),
     subscribers: pn(document.getElementById('f-subs').value),
     totalViews: pn(document.getElementById('f-tv').value),
     growth30: pn(document.getElementById('f-g30').value),
@@ -1415,19 +1412,27 @@ function saveC() {
     type: document.getElementById('f-ctype').value,
     sbUrl: document.getElementById('f-sb').value.trim(),
   };
-  if (editId!=null) {
-    const idx = creators.findIndex(c=>c.id===editId);
-    if (idx!==-1) creators[idx] = {...creators[idx], ...obj};
+  if (editId != null) {
+    const idx = creators.findIndex(c => c.id === editId);
+    if (idx !== -1) creators[idx] = { ...creators[idx], ...obj };
   } else {
     obj.id = nextId++;
     creators.push(obj);
   }
-  persist(); stampUpdate(); renderStats(); render(); closeModal();
+  closeModal();
+  renderStats();
+  render();
+  await persist();
+  stampUpdate();
 }
-function deleteC() {
+async function deleteC() {
   if (!confirm('Remove this creator?')) return;
-  creators = creators.filter(c=>c.id!==editId);
-  persist(); stampUpdate(); renderStats(); render(); closeModal();
+  creators = creators.filter(c => c.id !== editId);
+  closeModal();
+  renderStats();
+  render();
+  await persist();
+  stampUpdate();
 }
 document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget)closeModal(); });
 document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeManage();} });
