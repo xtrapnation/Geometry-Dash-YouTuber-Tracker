@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GD YouTuber Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #08090d;
+  --bg2:     #0e1016;
+  --bg3:     #14161f;
+  --bg4:     #1a1d28;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text:    #dde1ee;
+  --muted:   #606479;
+  --accent:  #4f8cff;
+  --green:   #34e0a0;
+
+  --g-mega:  #f472b6;
+  --g-100k:  #c084fc;
+  --g-big:   #93c5fd;
+  --g-good:  #4ade80;
+  --g-small: #86efac;
+  --g-none:  #4a4f60;
+  --g-neg:   #f87171;
+
+  --shorts-stripe: #f43f5e;
+  --regular-stripe: #4f8cff;
+
+  --fh: 'Rajdhani', sans-serif;
+  --fb: 'Outfit', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { background: var(--bg); color: var(--text); font-family: var(--fb); min-height: 100vh; overflow-x: hidden; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* STICKY TOP WRAPPER */
+#sticky-top {
+  position: sticky; top: 0; z-index: 200;
+}
+
+/* HEADER */
+header {
+  background: rgba(8,9,13,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border2);
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem; gap: 12px;
+}
+.logo {
+  font-family: var(--fh); font-size: 1.35rem; font-weight: 700;
+  letter-spacing: .1em; color: var(--text); display: flex; align-items: center; gap: 9px; flex-shrink: 0;
+}
+.logo-gem {
+  width: 26px; height: 26px; border-radius: 5px;
+  background: linear-gradient(135deg, #4f8cff 0%, #34e0a0 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; font-family: var(--fh);
+}
+.logo em { color: var(--accent); font-style: normal; }
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.upd-meta { font-family: var(--fm); font-size: 10px; color: var(--muted); white-space: nowrap; }
+.upd-meta span { color: var(--green); }
+
+/* BUTTONS */
+.btn {
+  padding: 6px 14px; border-radius: 7px;
+  border: 1px solid var(--border2); background: var(--bg3);
+  color: var(--text); font-family: var(--fb); font-size: 12px;
+  cursor: pointer; transition: all .14s; white-space: nowrap;
+}
+.btn:hover { background: var(--bg4); border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: #3a72e0; }
+.btn.green { background: transparent; border-color: var(--green); color: var(--green); }
+.btn.green:hover { background: rgba(52,224,160,.1); }
+.btn.danger { background: transparent; border-color: var(--g-neg); color: var(--g-neg); }
+.btn.danger:hover { background: rgba(168,85,247,.1); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* STATS BAR */
+.stats-bar {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem; display: flex; gap: 0; overflow-x: auto;
+}
+.stat { display: flex; flex-direction: column; justify-content: center; padding: 8px 20px 8px 0; gap: 2px; flex-shrink: 0; }
+.stat + .stat { padding-left: 20px; border-left: 1px solid var(--border); }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-family: var(--fm); }
+.stat-val { font-family: var(--fm); font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* CONTROLS */
+.controls {
+  padding: 10px 1.5rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.search-wrap { position: relative; min-width: 180px; flex: 1; max-width: 280px; }
+.search-wrap input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 7px; padding: 6px 10px 6px 30px;
+  color: var(--text); font-family: var(--fb); font-size: 12px; outline: none;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input::placeholder { color: var(--muted); }
+.si { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px; pointer-events: none; }
+select {
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px;
+  padding: 6px 10px; color: var(--text); font-family: var(--fb); font-size: 12px;
+  outline: none; cursor: pointer;
+}
+select:focus { border-color: var(--accent); }
+.ctrl-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.creator-count { font-family: var(--fm); font-size: 11px; color: var(--muted); }
+
+/* LEGEND */
+.legend {
+  padding: 7px 1.5rem; display: flex; gap: 12px; align-items: center;
+  flex-wrap: wrap; background: var(--bg2); border-bottom: 1px solid var(--border);
+}
+.leg-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: 4px; }
+.leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); }
+.ld { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.leg-sep { width: 1px; height: 14px; background: var(--border2); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; padding: 0 1.5rem 3rem; }
+table { width: 100%; border-collapse: separate; border-spacing: 0 2px; min-width: 900px; }
+
+thead th {
+  padding: 9px 10px; font-family: var(--fh); font-size: 10px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  text-align: left; cursor: pointer; user-select: none; white-space: nowrap;
+  background: var(--bg); border-bottom: 1px solid var(--border2);
+  position: sticky; top: 0; z-index: 10;
+}
+thead th:hover { color: var(--text); }
+thead th.sorted { color: var(--accent); }
+.sa { opacity: .35; margin-left: 3px; }
+.sorted .sa { opacity: 1; }
+
+tbody tr { background: var(--bg2); transition: background .1s; }
+tbody tr:hover { background: var(--bg3); }
+
+td {
+  padding: 0; vertical-align: middle;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+td:first-child { border-left: 1px solid var(--border); border-radius: 5px 0 0 5px; overflow: hidden; }
+td:last-child { border-right: 1px solid var(--border); border-radius: 0 5px 5px 0; padding: 0 8px; }
+td.padded { padding: 8px 10px; }
+
+/* TYPE STRIPE */
+.type-stripe { width: 3px; min-height: 36px; flex-shrink: 0; }
+.stripe-cell { padding: 0 !important; width: 3px; }
+.stripe-shorts { background: var(--shorts-stripe); }
+.stripe-regular { background: var(--regular-stripe); }
+
+.rank-cell { padding: 8px 10px !important; font-family: var(--fm); font-size: 11px; color: var(--muted); text-align: center; width: 36px; }
+
+.name-cell { padding: 7px 10px !important; }
+.name-wrap { display: flex; align-items: center; gap: 7px; }
+.ch-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg4); }
+.ch-avatar-placeholder { width: 26px; height: 26px; border-radius: 50%; background: var(--bg4); flex-shrink: 0; }
+.name-link { color: var(--text); text-decoration: none; font-family: var(--fh); font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+.name-link:hover { color: var(--accent); }
+.type-tag {
+  font-size: 8px; font-family: var(--fm); padding: 2px 5px; border-radius: 3px;
+  letter-spacing: .06em; text-transform: uppercase; flex-shrink: 0; font-weight: 500;
+}
+.tag-shorts { background: rgba(244,63,94,.15); color: var(--shorts-stripe); border: 1px solid rgba(244,63,94,.25); }
+.tag-regular { background: rgba(79,140,255,.15); color: var(--regular-stripe); border: 1px solid rgba(79,140,255,.25); }
+
+.num { padding: 8px 10px !important; font-family: var(--fm); font-size: 11px; text-align: right; color: var(--text); }
+.num.muted { color: var(--muted); }
+
+.growth-cell { padding: 8px 10px !important; text-align: right; }
+.gpill {
+  display: inline-block; padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-weight: 600; font-family: var(--fm); letter-spacing: .04em;
+}
+.gm    { background: rgba(244,114,182,.15); color: var(--g-mega);  border: 1px solid rgba(244,114,182,.35); }
+.g100k { background: rgba(192,132,252,.15); color: var(--g-100k); border: 1px solid rgba(192,132,252,.35); }
+.gb    { background: rgba(147,197,253,.15); color: var(--g-big);   border: 1px solid rgba(147,197,253,.35); }
+.gg    { background: rgba(74,222,128,.15);  color: var(--g-good);  border: 1px solid rgba(74,222,128,.35); }
+.gs    { background: rgba(134,239,172,.15); color: var(--g-small); border: 1px solid rgba(134,239,172,.35); }
+.gn    { background: rgba(74,79,96,.15);   color: var(--g-none);  border: 1px solid rgba(74,79,96,.3); }
+.gneg  { background: rgba(248,113,113,.15); color: var(--g-neg);   border: 1px solid rgba(248,113,113,.35); }
+
+.lang-tag { font-size: 9px; font-family: var(--fm); color: var(--muted); background: var(--bg3); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); }
+
+.upl { display: flex; align-items: center; gap: 5px; font-size: 10px; font-family: var(--fm); padding: 8px 10px !important; }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.d-yes  { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.d-rare { background: var(--g-big); }
+.d-no   { background: var(--muted); }
+
+.edit-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 4px; font-size: 13px; }
+.edit-btn:hover { color: var(--accent); background: var(--bg4); }
+.fetch-one-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 4px; font-size: 12px; }
+.fetch-one-btn:hover { color: var(--green); background: var(--bg4); }
+.fetch-one-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* FETCH PROGRESS */
+#fetch-bar {
+  display: none; padding: 8px 1.5rem;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  align-items: center; gap: 12px;
+}
+#fetch-bar.show { display: flex; }
+.progress-track { flex: 1; height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s; width: 0%; }
+#fetch-status { font-family: var(--fm); font-size: 11px; color: var(--muted); min-width: 200px; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(6px);
+  z-index: 300; display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 1.75rem; width: 540px; max-width: 95vw;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-family: var(--fh); font-size: 1.2rem; font-weight: 700; letter-spacing: .06em; margin-bottom: 1.25rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-grid .full { grid-column: 1 / -1; }
+.field label { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; font-family: var(--fm); }
+.field input, .field select {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 7px 9px; color: var(--text);
+  font-family: var(--fb); font-size: 12px; outline: none;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+/* MANAGE PANEL */
+#manage-panel { display: none; padding: 1.25rem 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border2); }
+#manage-panel.open { display: block; }
+.manage-hint { font-size: 11px; color: var(--muted); margin-bottom: 8px; line-height: 1.7; font-family: var(--fm); }
+.manage-hint strong { color: var(--text); }
+.json-editor {
+  width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 7px;
+  padding: 10px; color: var(--green); font-family: var(--fm); font-size: 10px;
+  line-height: 1.6; height: 260px; resize: vertical; outline: none;
+}
+.json-editor:focus { border-color: var(--accent); }
+.manage-acts { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.json-msg { font-size: 11px; font-family: var(--fm); }
+.json-ok { color: var(--green); }
+.json-err { color: var(--g-mega); }
+
+.empty { text-align: center; padding: 3rem; color: var(--muted); }
+.empty h3 { font-family: var(--fh); font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+
+/* SB HINT */
+.sb-note { font-size: 10px; color: var(--muted); font-family: var(--fm); margin-top: 4px; line-height: 1.5; }
+.sb-note a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="sticky-top">
+<header>
+  <div class="logo"><div class="logo-gem">GD</div><em>YouTuber Tracker</em></div>
+  <div class="header-right">
+    <span class="upd-meta">Updated: <span id="upd-display">—</span></span>
+    <button class="btn green" onclick="startFetchAll()" id="fetch-btn">⟳ Fetch All Stats</button>
+    <button class="btn" onclick="openManage()">⚙ Manage</button>
+    <button class="btn primary" onclick="openAdd()">+ Add Creator</button>
+  </div>
+</header>
+
+<!-- FETCH PROGRESS -->
+<div id="fetch-bar">
+  <span id="fetch-status">Fetching...</span>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  <button class="btn" onclick="stopFetch()">Stop</button>
+</div>
+<div id="api-hint" style="display:none;padding:6px 1.5rem;background:rgba(79,140,255,.08);border-bottom:1px solid rgba(79,140,255,.2);font-family:var(--fm);font-size:10px;color:var(--accent);">
+  💡 For reliable fetching, add a free <strong>YouTube Data API v3</strong> key at <a href="https://console.cloud.google.com" target="_blank" style="color:var(--green)">console.cloud.google.com</a> and paste it into the <code>YT_API_KEY</code> variable in the script. Without it, fetching uses Mixerno (may be slower/partial).
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-lbl">Creators</span><span class="stat-val" id="s-count">—</span></div>
+  <div class="stat"><span class="stat-lbl">Total Subs</span><span class="stat-val" id="s-subs">—</span></div>
+  <div class="stat"><span class="stat-lbl">Top Growth 30d</span><span class="stat-val" id="s-topg">—</span></div>
+  <div class="stat"><span class="stat-lbl">Total Views 30d</span><span class="stat-val" id="s-v30">—</span></div>
+  <div class="stat"><span class="stat-lbl">Active / Uploading</span><span class="stat-val" id="s-active">—</span></div>
+  <div class="stat"><span class="stat-lbl">Data Coverage</span><span class="stat-val" id="s-cov">—</span></div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap"><span class="si">⌕</span><input type="text" id="search" placeholder="Search creators..." oninput="render()"></div>
+  <select id="f-type" onchange="render()">
+    <option value="">All Types</option>
+    <option value="regular">Regular</option>
+    <option value="shorts">Shorts</option>
+  </select>
+  <select id="f-upload" onchange="render()">
+    <option value="">All Upload Status</option>
+    <option value="yes">Actively Uploading</option>
+    <option value="rare">Rarely</option>
+    <option value="no">Stopped</option>
+  </select>
+  <select id="f-lang" onchange="render()">
+    <option value="">All Languages</option>
+    <option value="en">English</option>
+    <option value="es">Spanish</option>
+    <option value="other">Other</option>
+  </select>
+  <select id="f-growth" onchange="render()">
+    <option value="">Any Growth</option>
+    <option value="mega">200K+ (Mega)</option>
+    <option value="big">50K+ (Big)</option>
+    <option value="good">25K+ (Good)</option>
+    <option value="neg">Negative</option>
+  </select>
+  <div class="ctrl-right">
+    <span class="creator-count" id="showing-count"></span>
+    <button class="btn" onclick="resetFilters()">Reset</button>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="leg-lbl">Growth 30d:</span>
+  <div class="leg"><div class="ld" style="background:var(--g-mega)"></div>200K+ <span style="opacity:.5;font-size:9px">(pink)</span></div>
+  <div class="leg"><div class="ld" style="background:var(--g-100k)"></div>100K+ <span style="opacity:.5;font-size:9px">(purple)</span></div>
+  <div class="leg"><div class="ld" style="background:var(--g-big)"></div>50K+ <span style="opacity:.5;font-size:9px">(blue)</span></div>
+  <div class="leg"><div class="ld" style="background:var(--g-good)"></div>25K+ <span style="opacity:.5;font-size:9px">(green)</span></div>
+  <div class="leg"><div class="ld" style="background:var(--g-small)"></div>10K+ <span style="opacity:.5;font-size:9px">(lt green)</span></div>
+  <div class="leg"><div class="ld" style="background:var(--g-none)"></div>0–10K / No data</div>
+  <div class="leg"><div class="ld" style="background:var(--g-neg)"></div>Negative</div>
+  <div class="leg-sep"></div>
+  <div class="leg"><div class="ld" style="background:var(--shorts-stripe)"></div>Shorts channel</div>
+  <div class="leg"><div class="ld" style="background:var(--regular-stripe)"></div>Regular channel</div>
+</div>
+</div><!-- end #sticky-top -->
+
+<!-- MANAGE PANEL (outside sticky so it pushes content down) -->
+<div id="manage-panel">
+  <p class="manage-hint">
+    Edit JSON directly — fields: <strong>name</strong>, <strong>url</strong>, <strong>subscribers</strong>, <strong>totalViews</strong>, <strong>growth30</strong>, <strong>views30</strong>, <strong>language</strong>, <strong>uploading</strong> ("yes"/"rare"/"no"), <strong>type</strong> ("regular"/"shorts"). Numbers only, no K/M suffixes (e.g. 300000 for 300K, -10000 for -10K).
+  </p>
+  <textarea class="json-editor" id="json-editor" spellcheck="false"></textarea>
+  <div class="manage-acts">
+    <button class="btn primary" onclick="applyJSON()">✓ Apply</button>
+    <button class="btn" onclick="closeManage()">Cancel</button>
+    <button class="btn" onclick="copyJSON()">⎘ Copy</button>
+    <button class="btn danger" onclick="resetToDefaults()">↺ Reset to Defaults</button>
+    <span class="json-msg" id="json-msg"></span>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th style="width:3px;padding:0;cursor:default"></th>
+        <th onclick="sortBy('rank')" id="th-rank" style="width:36px">#<span class="sa">↕</span></th>
+        <th onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
+        <th onclick="sortBy('subscribers')" id="th-subscribers" style="text-align:right">Subscribers<span class="sa">↕</span></th>
+        <th onclick="sortBy('totalViews')" id="th-totalViews" style="text-align:right">Total Views<span class="sa">↕</span></th>
+        <th onclick="sortBy('growth30')" id="th-growth30" style="text-align:right">Growth 30d<span class="sa">↕</span></th>
+        <th onclick="sortBy('views30')" id="th-views30" style="text-align:right">Views 30d<span class="sa">↕</span></th>
+        <th>Language</th>
+        <th onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
+        <th style="width:32px"></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none"><h3>No creators found</h3><p>Adjust search or filters.</p></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Add Creator</div>
+    <div class="form-grid">
+      <div class="field full"><label>Channel Name</label><input id="f-name" placeholder="e.g. RobTopGames"></div>
+      <div class="field full"><label>YouTube URL</label><input id="f-url" placeholder="https://youtube.com/@RobTopGames"></div>
+      <div class="field"><label>Subscribers</label><input type="number" id="f-subs" placeholder="18800000"></div>
+      <div class="field"><label>Total Views</label><input type="number" id="f-tv" placeholder="500000000"></div>
+      <div class="field"><label>Growth (30d)</label><input type="number" id="f-g30" placeholder="300000"></div>
+      <div class="field"><label>Views (30d)</label><input type="number" id="f-v30" placeholder="2000000"></div>
+      <div class="field"><label>Language</label><input id="f-lang" placeholder="English"></div>
+      <div class="field"><label>Uploading?</label>
+        <select id="f-upl"><option value="yes">Yes — Active</option><option value="rare">Rarely / Stopped GD</option><option value="no">No — Inactive</option></select>
+      </div>
+      <div class="field"><label>Channel Type</label>
+        <select id="f-ctype"><option value="regular">Regular</option><option value="shorts">Mainly Shorts</option></select>
+      </div>
+      <div class="field"><label>Social Blade URL (optional)</label><input id="f-sb" placeholder="https://socialblade.com/youtube/..."></div>
+    </div>
+    <p class="sb-note">💡 Leave numbers blank if unknown — use the <strong>Fetch from SocialBlade</strong> button to auto-fill.</p>
+    <div class="modal-footer">
+      <button class="btn danger" id="del-btn" onclick="deleteC()" style="display:none">Delete</button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveC()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────────
+// MASTER CREATOR LIST
+// ──────────────────────────────────────────────────────────
+const RAW = [
+["RobTopGames","https://www.youtube.com/@RobTopGames","regular","yes","English"],
+["itsZedarGD","https://www.youtube.com/@itsZedarGD","shorts","yes","English"],
+["ItzBran","https://www.youtube.com/@ItzBranGD","shorts","yes","English"],
+["ZedarDash","https://www.youtube.com/@ZedarDash","regular","yes","English"],
+["GuitarHeroStyles","https://www.youtube.com/@GuitarHeroStyles","regular","yes","Spanish"],
+["speedroute","https://www.youtube.com/@Speedroute","regular","yes","English"],
+["Stivenelvro","https://www.youtube.com/@Stivenelvro","regular","yes","Spanish"],
+["Nexus [GD]","https://www.youtube.com/@NexusGD10","regular","yes","English"],
+["Glowst","https://www.youtube.com/@glowstgd","regular","yes","English"],
+["DashZedar","https://www.youtube.com/@DashZedar","shorts","yes","English"],
+["Partition Sion","https://www.youtube.com/@PartitionSion","regular","yes","English"],
+["HabaneroA GD","https://www.youtube.com/@HabaneroAGD","regular","rare","English"],
+["MissGoony","https://www.youtube.com/@MissGoony","shorts","yes","English"],
+["KaiGuy","https://www.youtube.com/@KaiGuyGD","regular","yes","English"],
+["Chief Brioso","https://www.youtube.com/@chiefbrioso","regular","yes","English"],
+["Mulpan","https://www.youtube.com/@Mulpan","regular","yes","English"],
+["xtrapnation","https://www.youtube.com/channel/UCnGNaXrIYZHJa1S-uQmL01g","shorts","yes","English"],
+["BiteSterxBeast","https://www.youtube.com/@BiteSterxBeast","regular","yes","English"],
+["Galluxi","https://www.youtube.com/@Galluxi","regular","rare","English"],
+["CiroXP","https://www.youtube.com/@CiroXP","regular","rare","English"],
+["HBar [GD]","https://www.youtube.com/@HBarGD","regular","rare","English"],
+["ItzSquidyGD","https://www.youtube.com/@ItzSquidyGD","regular","yes","English"],
+["MrDasher69","https://www.youtube.com/@MrDasher69","shorts","yes","English"],
+["Old AN7HONY96","https://www.youtube.com/@AN7HONY96","regular","no","English"],
+["EricVanWilderman","https://www.youtube.com/@EricVanWilderman","regular","yes","English"],
+["KingSammelot","https://www.youtube.com/@KingSammelot","regular","yes","English"],
+["Lemoncak3","https://www.youtube.com/@Lemoncak3","regular","yes","English"],
+["Beanable","https://www.youtube.com/@beanable","regular","yes","English"],
+["Dorami","https://www.youtube.com/@Dorami","regular","yes","English"],
+["Vortrox","https://www.youtube.com/@Vortrox","regular","yes","English"],
+["MIKHA","https://www.youtube.com/@MIKHAGD","regular","yes","Spanish"],
+["Zoink","https://www.youtube.com/@Zoink","regular","yes","English"],
+["RageGD","https://www.youtube.com/@Rage_GD","shorts","yes","English"],
+["Titan Channel","https://www.youtube.com/@TitanChannel","regular","yes","English"],
+["Dasher","https://www.youtube.com/@Dasher","regular","yes","English"],
+["Нелис (Nelis)","https://www.youtube.com/@%D0%9D%D0%B5%D0%BB%D0%B8%D1%81","regular","yes","Russian"],
+["GD Colon","https://www.youtube.com/@GDColon","regular","yes","English"],
+["ByTriXz","https://www.youtube.com/@PressStartMonumental","regular","yes","English"],
+["LongHunter Gaming","https://www.youtube.com/@longhuntergaming4606","regular","yes","English"],
+["Deluxe12","https://www.youtube.com/@Deluxe12","regular","yes","English"],
+["I'm Fernando UwU","https://www.youtube.com/@ImFernandoUwU","regular","yes","Spanish"],
+["TheCrisisDash","https://www.youtube.com/@ItsCrisisDash","regular","yes","English"],
+["DeCody","https://www.youtube.com/@DeCody","regular","yes","English"],
+["Doggie","https://www.youtube.com/@DoggieDasher","regular","yes","English"],
+["HbarGD Clips","https://www.youtube.com/@HBarGDclips","shorts","yes","English"],
+["Neiro","https://www.youtube.com/@Neiro1999","regular","yes","English"],
+["pianotilesGD","https://www.youtube.com/@pianotilesGD","regular","yes","English"],
+["Accretion","https://www.youtube.com/@AccretionGD","regular","yes","English"],
+["MaFFaKa","https://www.youtube.com/@MaFFaKa","regular","yes","English"],
+["Moldy","https://www.youtube.com/@MoldyGD","regular","yes","English"],
+["Juniper","https://www.youtube.com/@JuniperGD","regular","yes","English"],
+["IZhar","https://www.youtube.com/@2.2","regular","yes","English"],
+["Dolphy","https://www.youtube.com/@DolphyGeometryDash","regular","yes","English"],
+["SrGuillerster","https://www.youtube.com/@SrGuillester","regular","yes","Spanish"],
+["Sdslayer","https://www.youtube.com/@sdslayer100","regular","rare","English"],
+["Spu7Nix","https://www.youtube.com/@Spu7Nix","regular","rare","English"],
+["RockyJones","https://www.youtube.com/@RockyJones","regular","yes","English"],
+["Staggy","https://www.youtube.com/@Staggy_01","regular","yes","English"],
+["simonisbest","https://www.youtube.com/@simonisbestgd","regular","yes","English"],
+["StivenelvroClips","https://www.youtube.com/@StivenelvroClips","shorts","yes","Spanish"],
+["XcreatorGoal","https://www.youtube.com/@XcreatorGoal","regular","yes","English"],
+["MrTopi","https://www.youtube.com/@MisterTopi","regular","yes","English"],
+["skewer","https://www.youtube.com/@skewer56","shorts","yes","English"],
+["Viprin","https://www.youtube.com/@viprin","regular","rare","English"],
+["DashTime","https://www.youtube.com/@DashTimeGD","regular","yes","English"],
+["Galposaco","https://www.youtube.com/@Galposaco","regular","yes","Spanish"],
+["WorldGame","https://www.youtube.com/@WorldGameImpossibleChallenges","regular","yes","English"],
+["Bycraftxx","https://www.youtube.com/@Bycraftxx","regular","yes","Spanish"],
+["Crazy Bogdash Games","https://www.youtube.com/@crazybogdashgames","regular","yes","English"],
+["baby bella","https://www.youtube.com/@baby__bellaaz","regular","yes","English"],
+["SoulsTRK","https://www.youtube.com/@SoulsTRKGD","regular","yes","English"],
+["SiKky","https://www.youtube.com/@SiKky","regular","yes","English"],
+["npesta","https://www.youtube.com/@npesta","regular","rare","English"],
+["Riot","https://www.youtube.com/@Riottt","regular","rare","English"],
+["Mr. Happy Junior","https://www.youtube.com/@MrHappyJunior","regular","yes","English"],
+["AleXPain24","https://www.youtube.com/@AleXPain24","regular","yes","Spanish"],
+["Clementdav GD","https://www.youtube.com/@ClementdavGD","shorts","yes","English"],
+["tosh","https://www.youtube.com/@toshdeluxe","regular","yes","English"],
+["knobbelboy","https://www.youtube.com/@knobbelboy","regular","rare","English"],
+["SquishyMan","https://www.youtube.com/@Squishyman67","regular","yes","English"],
+["Geck","https://www.youtube.com/@Geck","regular","yes","English"],
+["Peter Brayham","https://www.youtube.com/@PeterBrayhamYT","regular","yes","English"],
+["VERY_BIG_HEAD","https://www.youtube.com/@very_big_head8845","regular","yes","English"],
+["VortroxTwo","https://www.youtube.com/@VortroxTwo","regular","yes","English"],
+["Michigun","https://www.youtube.com/@Michigun","regular","no","English"],
+["DS Animations","https://www.youtube.com/@dsanimations","regular","yes","English"],
+["Icee Mickey","https://www.youtube.com/@IceeMickey","regular","yes","English"],
+["Stacks","https://www.youtube.com/@StacksOriginals","shorts","yes","English"],
+["Jhostyn Sanchez","https://www.youtube.com/@jhostyn25","regular","yes","Spanish"],
+["SpeedJay","https://www.youtube.com/@SpeedJAY.","regular","yes","English"],
+["Tride","https://www.youtube.com/@TrideGD","regular","yes","English"],
+["Reemii [GD]","https://www.youtube.com/@ReemiiGD","regular","yes","English"],
+["icedcave","https://www.youtube.com/@icedcave","regular","yes","English"],
+["Test (waboo)","https://www.youtube.com/channel/UCZRcA_nO3Kt-SOml2mY8D9g","regular","yes","English"],
+["Waboo","https://www.youtube.com/@waboo","regular","yes","English"],
+["Let's play GD!","https://www.youtube.com/@LetsPlayGeometryDash","regular","yes","English"],
+["RETROMAN","https://www.youtube.com/@RetromanGD","regular","yes","English"],
+["fnm04","https://www.youtube.com/@fnm04","regular","rare","English"],
+["Ivan [GD]","https://www.youtube.com/@IIvanGD","regular","yes","English"],
+["MindCap","https://www.youtube.com/@mindcap.","regular","yes","English"],
+["KrmaL","https://www.youtube.com/@KrmaL","regular","rare","English"],
+["AeonAir","https://www.youtube.com/@AeonAir","regular","yes","English"],
+["Flub","https://www.youtube.com/@FlubGeometryDash","regular","yes","English"],
+["Krisz","https://www.youtube.com/@KriszGD","regular","yes","English"],
+["Wulzy","https://www.youtube.com/@Wulzy","regular","yes","English"],
+["TCD","https://www.youtube.com/@TCD_Media","regular","yes","English"],
+["Sunix","https://www.youtube.com/@sunixl","regular","rare","English"],
+["Rektor","https://www.youtube.com/@Rektorgd","regular","yes","English"],
+["Geo GD","https://www.youtube.com/@ItsMeGeoGD","shorts","yes","Spanish"],
+["Voxicat","https://www.youtube.com/@Voxicat","regular","yes","English"],
+["MUSIC SOUNDS","https://www.youtube.com/@MUSICSOUNDSGD","regular","yes","English"],
+["Secret Way","https://www.youtube.com/@SecretWayGD","shorts","yes","English"],
+["gdsandstorm","https://www.youtube.com/@GeometryDashSandstorm","regular","yes","English"],
+["Bolyarb","https://www.youtube.com/@Bolyarb","regular","yes","English"],
+["How-D","https://www.youtube.com/@how-d","regular","yes","English"],
+["KaiGuy's Kickback","https://www.youtube.com/@KaiGuysKickback","regular","yes","English"],
+["SirKaelGD","https://www.youtube.com/@SirKaelGD","regular","yes","English"],
+["Geometry dash Boffis","https://www.youtube.com/@boffisgd","regular","yes","English"],
+["Trick","https://www.youtube.com/@TrickGMD","regular","yes","English"],
+["MatMart","https://www.youtube.com/@MatMart","regular","yes","English"],
+["Stallion","https://www.youtube.com/@StallionGD","regular","yes","English"],
+["RELZ","https://www.youtube.com/@relz","regular","yes","English"],
+["LiAxLoGa","https://www.youtube.com/@LiAxLoGaGD","regular","yes","Spanish"],
+["razing717","https://www.youtube.com/@razing717","regular","rare","English"],
+["FreshLakeWater","https://www.youtube.com/@FreshLakeWater","regular","yes","English"],
+["PigPig Gamer","https://www.youtube.com/@PigPigGamer","regular","yes","English"],
+["Dki8i [GD]","https://www.youtube.com/@dki8i_GD","regular","yes","English"],
+["DIMA GD 2","https://www.youtube.com/@Dima_gd_2","shorts","yes","English"],
+["Vinny","https://www.youtube.com/@Vinnycha123","shorts","yes","English"],
+["NK7338","https://www.youtube.com/@NK7338","regular","yes","English"],
+["Trusta","https://www.youtube.com/@TrusTa","regular","yes","English"],
+["Alias","https://www.youtube.com/@AliasGD","regular","yes","English"],
+["ItzBranClips","https://www.youtube.com/@ItzBranClips","shorts","yes","English"],
+["Cursed","https://www.youtube.com/@cursed6125","regular","yes","English"],
+["SB TYPHOON YT","https://www.youtube.com/@SB_TYPHOON_YT","regular","yes","English"],
+["Daily Dose Of GD","https://www.youtube.com/@DailyDoseGD","regular","yes","English"],
+["Zobros","https://www.youtube.com/@GeometryDashZobros","regular","no","English"],
+["Enc0dy","https://www.youtube.com/@enc0dy","regular","yes","English"],
+["Cob","https://www.youtube.com/@Cobgd","regular","yes","English"],
+["TheHypno","https://www.youtube.com/@TheHypno1208","regular","yes","English"],
+["zylenox","https://www.youtube.com/@ZylenoxV","regular","rare","English"],
+["Just a GD player","https://www.youtube.com/@justagdplayer","regular","yes","English"],
+["ChrisCredible","https://www.youtube.com/@ChrisCredible","regular","yes","English"],
+["JonathanGD","https://www.youtube.com/@JonathanGD","regular","yes","English"],
+["wPopoff","https://www.youtube.com/@wpopoff6461","regular","yes","English"],
+["LandSlide","https://www.youtube.com/@LandSl1de","regular","yes","English"],
+["Lufik","https://www.youtube.com/@lufikkkk","regular","yes","English"],
+["Mr. Alternal","https://www.youtube.com/@mralt","shorts","yes","English"],
+["Adya","https://www.youtube.com/@AdyaGD","regular","yes","English"],
+["Ruvmore16","https://www.youtube.com/@Ruvmore16","regular","yes","English"],
+["GD Sayori","https://www.youtube.com/@GD_Sayori","regular","yes","English"],
+["Technical","https://www.youtube.com/@TechnicalJL","regular","yes","English"],
+["Vernam","https://www.youtube.com/@VernamGD","regular","yes","English"],
+["schark27","https://www.youtube.com/@Schark27","regular","yes","English"],
+["Fenix Channel","https://www.youtube.com/@Fenix_Channel","regular","yes","Spanish"],
+["GD SkyCyan","https://www.youtube.com/@GDSkyCyan","regular","yes","English"],
+["ricardomateoej1","https://www.youtube.com/@ricardomateoej1","shorts","yes","Spanish"],
+["DashGamerGG","https://www.youtube.com/@DashGamerGG","shorts","yes","English"],
+["Cooper Mitchell","https://www.youtube.com/@coopermitcchell","regular","yes","English"],
+["Switchstep GD","https://www.youtube.com/@SwitchStepGD","regular","yes","English"],
+["Italian APK Downloader","https://www.youtube.com/@italianapkdownloader","regular","yes","English"],
+["Selpix","https://www.youtube.com/@selpix","regular","yes","English"],
+["Tatox3","https://www.youtube.com/@Tatox3_","regular","yes","Spanish"],
+["Sarix","https://www.youtube.com/@SarixOfficial","shorts","yes","English"],
+["cool pizza man stuff","https://www.youtube.com/@coolpizzamanstuff","regular","yes","English"],
+["VIX50","https://www.youtube.com/@VIX50x","regular","yes","English"],
+["DDash69","https://www.youtube.com/@DDash69","regular","yes","English"],
+["Hapy Pace","https://www.youtube.com/@HapyPace","shorts","yes","English"],
+["Diamond","https://www.youtube.com/@DiamondGD","regular","yes","English"],
+["Samifying","https://www.youtube.com/@Samifying","regular","yes","English"],
+["Intopr","https://www.youtube.com/channel/UCF5nol8-3pY6yiObtVxdnIA","regular","yes","English"],
+["Ant_Gam3R","https://www.youtube.com/@Ant_Gam3R","regular","yes","English"],
+["LufeGamer!","https://www.youtube.com/@MrLufeGamerTM","regular","yes","Spanish"],
+["RafaBirds","https://www.youtube.com/@RafaBirds","regular","yes","Spanish"],
+["3000Dan","https://www.youtube.com/@3000Dan","regular","yes","English"],
+["Vit12","https://www.youtube.com/@vit124","regular","yes","English"],
+["YcreatorGoal","https://www.youtube.com/@YcreatorGoal","regular","yes","English"],
+["Conix","https://www.youtube.com/@ConixGMD","regular","yes","English"],
+["Wordee","https://www.youtube.com/@wordeegd","regular","yes","English"],
+["Ani","https://www.youtube.com/@Eiriley","regular","yes","English"],
+["Bli","https://www.youtube.com/@Bli_GD","regular","yes","English"],
+["PureL","https://www.youtube.com/@purelsecret","regular","yes","English"],
+["APP$","https://www.youtube.com/@app9284","shorts","yes","English"],
+["LopsidedChicken","https://www.youtube.com/@LopsidedChickenGD","regular","yes","English"],
+["Colours Gaming","https://www.youtube.com/@Colours.Gaming","regular","yes","English"],
+["JamAttack","https://www.youtube.com/@JamAttack","regular","yes","English"],
+["andromeda","https://www.youtube.com/@andromeda7674","regular","yes","English"],
+["WhatGamerWha","https://www.youtube.com/@WhatGamerWha","regular","yes","English"],
+["emnerson","https://www.youtube.com/@emnersonn","regular","yes","English"],
+["LongHunter","https://www.youtube.com/@longhunter1237","regular","yes","English"],
+["Subscribe Partition New...","https://www.youtube.com/@CheckyYoutubeChannel","regular","yes","English"],
+["Adaf","https://www.youtube.com/@adaf3003","regular","yes","English"],
+["Etzer","https://www.youtube.com/@etzerGD","regular","yes","English"],
+["RegularDash","https://www.youtube.com/@RegularDash","shorts","yes","English"],
+["BUCKS","https://www.youtube.com/@ItzBucksGD","regular","yes","English"],
+["[ER] Ender","https://www.youtube.com/@EREnder","regular","yes","English"],
+["AndrewMB","https://www.youtube.com/@AndrewMBGD","regular","yes","English"],
+["ItsHunterGD","https://www.youtube.com/@Thinking_GD","regular","yes","English"],
+["Blueskii","https://www.youtube.com/@Blueskii","shorts","yes","English"],
+["Geometry Dash BrainRot","https://www.youtube.com/@GeometryDashBrainRot","shorts","yes","English"],
+["Lemons","https://www.youtube.com/@LemonsGD","regular","yes","English"],
+["Gamer Dash","https://www.youtube.com/@GamerDashCube","regular","yes","English"],
+["Norcda Childa","https://www.youtube.com/@NorcdaChilda","regular","yes","English"],
+["Zeronium","https://www.youtube.com/@Zeronium","regular","yes","English"],
+["Smiffy777","https://www.youtube.com/@Smiffy777","regular","yes","English"],
+["Xadii","https://www.youtube.com/@Xadii","regular","yes","English"],
+["Mr. Kotovskyu","https://www.youtube.com/@MrKotovskyu","regular","yes","Russian"],
+["Suwomo ツ","https://www.youtube.com/@SuwomoGD","regular","yes","English"],
+["MangoDash","https://www.youtube.com/@MangoDash","shorts","yes","English"],
+["ZoinkLIVE","https://www.youtube.com/@ZoinkLive","regular","yes","English"],
+["Skips Dasher","https://www.youtube.com/@SkipsDasher","regular","yes","English"],
+["NoNap","https://www.youtube.com/@NoNapYT","regular","yes","English"],
+["Papso","https://www.youtube.com/@ByPapso","regular","yes","English"],
+["Gerson Gaming","https://www.youtube.com/@GersonGaming","regular","yes","Spanish"],
+["Danzmen","https://www.youtube.com/@danzmen9965","regular","yes","English"],
+["LSMGaming","https://www.youtube.com/@LSMGaming2009","regular","yes","English"],
+["WORLD GD","https://www.youtube.com/@worldgd","regular","yes","English"],
+["Twisted","https://www.youtube.com/@Twisted51","shorts","yes","English"],
+["UFokinWotM8","https://www.youtube.com/@UFokinWotM8GD","regular","rare","English"],
+["Flaaroni","https://www.youtube.com/@Flaaroni","regular","yes","English"],
+["lappwv","https://www.youtube.com/@lappwv","shorts","yes","English"],
+["Androxma","https://www.youtube.com/@AndroxmaGD","regular","yes","English"],
+["JackO GD","https://www.youtube.com/@CretosGMD","regular","yes","English"],
+["ClayFuzzy","https://www.youtube.com/@ClayFuzzy","regular","yes","English"],
+["Fujop GD","https://www.youtube.com/@fujop","shorts","yes","English"],
+["Jubercool","https://www.youtube.com/@Jubercool","regular","yes","English"],
+["LeroZ [GD]","https://www.youtube.com/@LeroZGD","regular","yes","English"],
+["BGD GAME","https://www.youtube.com/@BGD_GAME","regular","yes","English"],
+["JohnRickGDOfficial","https://www.youtube.com/@JohnRickGDOfficial","shorts","yes","Spanish"],
+["Itz Xtinct","https://www.youtube.com/@Xtinctlol","regular","yes","English"],
+["Bars [GD]","https://www.youtube.com/@BarsGD_N07","regular","yes","English"],
+["Xanii","https://www.youtube.com/@Xanii","regular","yes","English"],
+["GhotoGD","https://www.youtube.com/@GhotoGD","regular","yes","English"],
+["Remarkabo","https://www.youtube.com/@Remarkabo","regular","yes","English"],
+["BlassCFB","https://www.youtube.com/@BlassCFB","regular","yes","English"],
+["Brandon Larkin","https://www.youtube.com/@RealBrandonLarkin","regular","yes","English"],
+["xtrapnation too","https://www.youtube.com/@xtrapnationtoo","shorts","yes","English"],
+["gmdblue","https://www.youtube.com/@gmdblue","regular","yes","English"],
+["Serponge","https://www.youtube.com/@SerpongeDash","regular","rare","English"],
+["Perfect GD","https://www.youtube.com/@PerfectGD","regular","yes","English"],
+["GD NEWS","https://www.youtube.com/@GDNEWSoff","regular","yes","English"],
+["Lazy Sheep","https://www.youtube.com/@ALazySheep","shorts","yes","English"],
+["Alox2809","https://www.youtube.com/@Alox2809","regular","yes","Spanish"],
+["AetherDark [GD]","https://www.youtube.com/@AetherDarkGD","regular","yes","English"],
+["KingSammeMom","https://www.youtube.com/@kingsammemom","regular","yes","English"],
+["Yael","https://www.youtube.com/@YaelXimil","regular","yes","Spanish"],
+["Absolute","https://www.youtube.com/@absolllute","regular","yes","English"],
+["Vaxiffy","https://www.youtube.com/@Vaxiffyfn","regular","yes","English"],
+["Stormfly","https://www.youtube.com/@Stormfly","regular","yes","English"],
+["KelanKraft","https://www.youtube.com/@KelanKraft","regular","yes","English"],
+["Danolex","https://www.youtube.com/@Danolex","regular","yes","English"],
+["GeoBlitzy","https://www.youtube.com/@GeoBlitzy","regular","yes","English"],
+["Emilixito","https://www.youtube.com/@Emilixito","regular","yes","Spanish"],
+["SiKkyyy","https://www.youtube.com/channel/UCDRl4svl0gD9-gPZiWvPCpw","regular","yes","English"],
+["Creepy","https://www.youtube.com/@CreepyDash","regular","yes","English"],
+["Lung GD","https://www.youtube.com/@lunggd","regular","yes","English"],
+["MaxiS9","https://www.youtube.com/@MaxiS9gd","regular","yes","English"],
+["Jeyzor","https://www.youtube.com/@Jeyzor","regular","rare","English"],
+["FrostGD","https://www.youtube.com/@FrostGD1","shorts","yes","English"],
+["Rykiion","https://www.youtube.com/@Rykiion","regular","yes","English"],
+["NaXx","https://www.youtube.com/@NaXxMC","regular","yes","English"],
+["Shaggy23","https://www.youtube.com/@Shaggy23GD","regular","yes","English"],
+["DoggieClips","https://www.youtube.com/@doggiedasherclips","shorts","yes","English"],
+["paqoe","https://www.youtube.com/@paqoe","regular","yes","English"],
+["Souls","https://www.youtube.com/@SoulsGamin","regular","yes","English"],
+["CJrock","https://www.youtube.com/@cjrockgeometrydash","regular","yes","English"],
+["LeTim","https://www.youtube.com/@LeTim","regular","yes","English"],
+["RedHuseey","https://www.youtube.com/@Huseey","regular","yes","English"],
+["Geometry Dash MegaMan","https://www.youtube.com/@GeometryDashMegaMan","regular","yes","English"],
+["Vision","https://www.youtube.com/@zVision_","regular","yes","English"],
+["ETM_Games","https://www.youtube.com/@ETMGames","regular","yes","English"],
+["MG_Morgan","https://www.youtube.com/@MGMorgan","regular","yes","English"],
+["OneAlphaHelix","https://www.youtube.com/@OneAlphaHelix","regular","yes","English"],
+["RiverCiver","https://www.youtube.com/@RiverCiver","regular","yes","English"],
+["MathGenius","https://www.youtube.com/@MathGeniusGD","regular","yes","English"],
+["JustheenYt","https://www.youtube.com/@justheenyt9803","regular","yes","English"],
+["pimto","https://www.youtube.com/@pimtogd","shorts","yes","English"],
+["Wavix","https://www.youtube.com/@wavix","regular","yes","English"],
+["Denni","https://www.youtube.com/channel/UCLSGb-2eIv4CnSUKT5QseNw","regular","yes","English"],
+["Swag Route","https://www.youtube.com/@SwagRoute0","regular","yes","English"],
+["BikasGD","https://www.youtube.com/@BikasGD","regular","yes","English"],
+["Water","https://www.youtube.com/@GeometryDashWater","regular","yes","English"],
+["xNyyct","https://www.youtube.com/@xNyyct","regular","yes","English"],
+["Temp","https://www.youtube.com/@tempgd","regular","yes","English"],
+["weoweoteo","https://www.youtube.com/@weoweoteo","regular","yes","English"],
+["AudieoVisual","https://www.youtube.com/@Audieo","regular","yes","English"],
+["LordVadercraft","https://www.youtube.com/@LordVadercraft","regular","yes","English"],
+["GD Creator School","https://www.youtube.com/@GDCreatorSchool","regular","yes","English"],
+["Donei GD","https://www.youtube.com/@doneigd","regular","yes","English"],
+["Acrellux","https://www.youtube.com/@Acrellux","regular","yes","English"],
+["nifty","https://www.youtube.com/@niftylololol","regular","yes","English"],
+["AitoRasse","https://www.youtube.com/@AitoRasse","regular","yes","English"],
+["Zenthic","https://www.youtube.com/@zenthic6812","regular","yes","English"],
+["Herobrinepleaz9","https://www.youtube.com/@Herobrinepleaz9","regular","yes","English"],
+["SMango23","https://www.youtube.com/@SMangoGD","regular","yes","English"],
+["MAXDASH","https://www.youtube.com/@maxdash3075","regular","yes","English"],
+["Freakify","https://www.youtube.com/@FreakNation","regular","yes","English"],
+["I'm KitsuneEdu ツ","https://www.youtube.com/@KitsuneEdu","regular","yes","English"],
+["Nefico","https://www.youtube.com/@neficoOFC","regular","yes","Spanish"],
+["Unzor","https://www.youtube.com/@unzor","regular","yes","English"],
+["DiegoMSC5","https://www.youtube.com/@diegomsc5","shorts","yes","Spanish"],
+["Rodriguez GD","https://www.youtube.com/@rodriguezgd66","regular","yes","Spanish"],
+["TigerXero","https://www.youtube.com/@TigerXero","regular","yes","English"],
+["Rulas GD","https://www.youtube.com/@RulasGD","regular","yes","Spanish"],
+["Cyclic","https://www.youtube.com/@Cyclic98","regular","yes","English"],
+["AzaFTW","https://www.youtube.com/@AzaFTW","regular","yes","English"],
+["n1ckxd","https://www.youtube.com/@n1ckxd","regular","yes","English"],
+["Surv","https://www.youtube.com/@SurvGD","regular","yes","English"],
+["YoReid","https://www.youtube.com/@YoReid","regular","yes","English"],
+["TinsNuts","https://www.youtube.com/@TinsNuts","shorts","yes","English"],
+["GamingwithTy","https://www.youtube.com/@GamingWithTyYt","shorts","yes","English"],
+["Wrongway98","https://www.youtube.com/@Wrongway98","regular","yes","English"],
+["Quasar","https://www.youtube.com/@GDQuasar","regular","yes","English"],
+["NePtunE","https://www.youtube.com/@NePtunE742","regular","yes","English"],
+["BoldStep","https://www.youtube.com/@boldstep5246","regular","yes","English"],
+["MasterTheCube5","https://www.youtube.com/@masterswingthecube5","regular","yes","English"],
+["BlobeeGD","https://www.youtube.com/@BlobeeGD","regular","yes","English"],
+["Combi","https://www.youtube.com/@CombinedGS","regular","yes","English"],
+["Mangwo","https://www.youtube.com/@mangwogd","regular","yes","English"],
+["Mighty Minor","https://www.youtube.com/@MightyMinors","regular","yes","English"],
+["JustGaming","https://www.youtube.com/@justgaming14","shorts","yes","English"],
+["Luqualizer","https://www.youtube.com/@Luqualizer","regular","yes","English"],
+["Airz","https://www.youtube.com/@AirzGD","regular","yes","English"],
+["zainyk7","https://www.youtube.com/@zainyk","regular","yes","English"],
+["Zallitz","https://www.youtube.com/@Zallitz","regular","yes","English"],
+["DJ LeFave","https://www.youtube.com/@DJLeFave","regular","yes","English"],
+["Square Demon","https://www.youtube.com/@SquareDemon","shorts","yes","English"],
+["tiranogatos","https://www.youtube.com/@tiranogatos..","regular","yes","Spanish"],
+["BGram","https://www.youtube.com/@BGram","regular","yes","English"],
+["Diamondbling97","https://www.youtube.com/@Diamondbling97","regular","yes","English"],
+["Risp","https://www.youtube.com/@RispGD","regular","yes","English"],
+["myshxello","https://www.youtube.com/@myshxllo","shorts","yes","English"],
+["Electroid","https://www.youtube.com/@ElectroidGD","regular","yes","English"],
+["Deam147 YT","https://www.youtube.com/@Deam147GD","regular","yes","English"],
+["DiamondSplash","https://www.youtube.com/@DiamondSplash","regular","yes","English"],
+["Goda","https://www.youtube.com/@Godataro","shorts","yes","English"],
+["Golden","https://www.youtube.com/@GoldenTG","regular","yes","English"],
+["Jobet","https://www.youtube.com/@GeometryDashJobet","regular","yes","Spanish"],
+["cyrillic","https://www.youtube.com/@cyrillicc","regular","yes","English"],
+["Ley GD","https://www.youtube.com/@LeyGD","regular","yes","English"],
+["SeptaGon7","https://www.youtube.com/@SeptaGon7","regular","yes","English"],
+["SUOMI","https://www.youtube.com/@GeometryDashSUOMI","regular","yes","English"],
+["lipton plus","https://www.youtube.com/@liptonplus","regular","yes","English"],
+["Wooshi","https://www.youtube.com/@Wooshi999","regular","yes","English"],
+["Pennutoh","https://www.youtube.com/@GDPennutoh","regular","yes","English"],
+["Manix648","https://www.youtube.com/@manix648","regular","rare","English"],
+["fiire","https://www.youtube.com/@fiire6462","regular","yes","English"],
+["Gaming with Gavin","https://www.youtube.com/@gamingwithgavin9145","regular","yes","English"],
+["Paulex [GD]","https://www.youtube.com/@paulex99","regular","yes","English"],
+["Smokes","https://www.youtube.com/@xSmokes71","regular","yes","English"],
+["GD Jose (GD)","https://www.youtube.com/@gdjose5015","regular","yes","Spanish"],
+["AzureTurk","https://www.youtube.com/@AzureTurk","regular","yes","English"],
+["OmegaFalcon GD","https://www.youtube.com/@OmegaFalcon","regular","yes","English"],
+["Giron","https://www.youtube.com/@girondavid784","regular","yes","Spanish"],
+["KehvinGD","https://www.youtube.com/@KehvinGD","shorts","yes","English"],
+["WOOGI","https://www.youtube.com/@WOOGI1411","regular","rare","English"],
+["JUxTWO","https://www.youtube.com/@JUxTWO","regular","yes","English"],
+["VidishGD","https://www.youtube.com/@vidishout","shorts","yes","English"],
+["Incidius","https://www.youtube.com/@Incidius","regular","yes","English"],
+["Funny Game","https://www.youtube.com/@Funnygame_","regular","yes","English"],
+["nasgubb","https://www.youtube.com/@nasgubb","regular","rare","English"],
+["Wolvez","https://www.youtube.com/@WolvezW","regular","yes","English"],
+["ZeroSR","https://www.youtube.com/@ZeroSR","regular","yes","English"],
+["Ausk","https://www.youtube.com/@auskgd","regular","yes","English"],
+["Riot (Fake)","https://www.youtube.com/@riot1123","regular","yes","English"],
+["Hema [GD]","https://www.youtube.com/@HemaGD","regular","yes","English"],
+["xander","https://www.youtube.com/@xander556","regular","yes","English"],
+["LeClipse GD","https://www.youtube.com/@itsleclipse","regular","yes","English"],
+["Vortrox LIVE","https://www.youtube.com/@VortroxLIVE","regular","yes","English"],
+["JumpManNick","https://www.youtube.com/@JumpManNick","shorts","yes","English"],
+["Insendium","https://www.youtube.com/@gdashinsendium","regular","rare","English"],
+["InfinityBlaze","https://www.youtube.com/@InfinityBlaze79","regular","yes","English"],
+["swiborg","https://www.youtube.com/@swiborg","regular","rare","English"],
+["LmAnubis","https://www.youtube.com/@LmAnubis","regular","yes","English"],
+["GalaxyDash","https://www.youtube.com/@GalaxyDashGD","regular","yes","English"],
+["Noriega","https://www.youtube.com/@NoriegaGD","regular","yes","Spanish"],
+["Electrify","https://www.youtube.com/@ElectrifyXD","regular","yes","English"],
+["SpeedyMuffin","https://www.youtube.com/@SpeedyMuffinYT","regular","rare","English"],
+["Echonox","https://www.youtube.com/@EchonoxYT","regular","yes","English"],
+["Anglified","https://www.youtube.com/@Anglified","regular","rare","English"],
+["ultrakawaHD","https://www.youtube.com/@ultrakawaHD","regular","yes","English"],
+["Alkali","https://www.youtube.com/@GDAlkali","regular","yes","English"],
+["TCD Extra","https://www.youtube.com/@TCD_Extra","regular","yes","English"],
+["Xempir","https://www.youtube.com/@Xempir","regular","yes","English"],
+["EchoGD","https://www.youtube.com/@EchoGD","regular","yes","English"],
+["Crator Crasher","https://www.youtube.com/@cratorcrasher","regular","yes","English"],
+["GamingDischarge","https://www.youtube.com/@GamingDischarge","regular","yes","English"],
+["Groundflower","https://www.youtube.com/@GDGroundflower","regular","yes","English"],
+["ChopBlox","https://www.youtube.com/@ChopBlox","regular","yes","English"],
+["Tongii","https://www.youtube.com/@Tongii_Piiano","regular","yes","English"],
+["JenkshouseGD","https://www.youtube.com/@Jenkshouse","shorts","yes","English"],
+["Trufflo","https://www.youtube.com/@Trufflo_","regular","yes","English"],
+["PureL - 5th Root","https://www.youtube.com/@p5root","regular","yes","English"],
+["Metalface221","https://www.youtube.com/@Metalface221","regular","rare","English"],
+["Klaux GD","https://www.youtube.com/@Klaux","regular","yes","English"],
+["WHErwin","https://www.youtube.com/@WHErwin","regular","yes","English"],
+["Toph Talks","https://www.youtube.com/@RealTophTalks","regular","yes","English"],
+["powerbomb","https://www.youtube.com/@GeometryDashPowerbomb","regular","yes","English"],
+["LazerBlitz","https://www.youtube.com/@lazerblitz101","regular","yes","English"],
+["STARxd","https://www.youtube.com/@3Star885","regular","yes","English"],
+["BrianTheBurger","https://www.youtube.com/@briantheburger","regular","yes","English"],
+["NothingIsScary","https://www.youtube.com/@NothingIsScary","regular","yes","English"],
+["Yossarian","https://www.youtube.com/@YossarianGD","regular","yes","English"],
+["Kawaqii","https://www.youtube.com/@Kawaqii","regular","yes","English"],
+["Ggb0y","https://www.youtube.com/@Ggb0y","regular","yes","English"],
+["GirlyAle02","https://www.youtube.com/@Girlyale02","regular","yes","English"],
+["sink","https://www.youtube.com/@sinkplaygame","regular","yes","English"],
+["Vee26","https://www.youtube.com/@vee26.","regular","yes","English"],
+["BryceJW","https://www.youtube.com/@BRYCEJW","regular","yes","English"],
+["RGC Exists","https://www.youtube.com/@rgc-exists","regular","yes","English"],
+["MattTacc","https://www.youtube.com/@matttacc","regular","yes","English"],
+["OnlyTrying","https://www.youtube.com/@onlytrying","regular","yes","English"],
+["AngelEffect","https://www.youtube.com/@angeleffect","regular","yes","English"],
+["Dragun YT","https://www.youtube.com/@dragunyt2727","regular","yes","English"],
+["Skelly","https://www.youtube.com/@skelly347","shorts","yes","English"],
+["TroyPM","https://www.youtube.com/@TroyPM","regular","yes","English"],
+["DanYko","https://www.youtube.com/@Danyko_GD","regular","yes","English"],
+["Pineapple","https://www.youtube.com/@pineappledasher4902","regular","yes","English"],
+["Alimicious","https://www.youtube.com/@alimicious","regular","yes","English"],
+["LokoRondo","https://www.youtube.com/@LokoRondo","shorts","yes","English"],
+["Verttier","https://www.youtube.com/@Verttier","regular","yes","English"],
+["Cironix","https://www.youtube.com/@cironix","regular","yes","English"],
+["Viwi","https://www.youtube.com/@viwigd","regular","yes","English"],
+["Strawberry","https://www.youtube.com/@Strawberry-GD","regular","yes","English"],
+];
+
+// ──────────────────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────────────────
+function buildDefaults() {
+  return RAW.map((r, i) => ({
+    id: i + 1,
+    name: r[0], url: r[1], type: r[2], uploading: r[3], language: r[4],
+    subscribers: null, totalViews: null, growth30: null, views30: null,
+    sbUrl: null
+  }));
+}
+
+let creators = (() => {
+  try {
+    const s = localStorage.getItem('gd-v2');
+    if (s) {
+      const parsed = JSON.parse(s);
+      if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0].name === 'string') {
+        const byName = {};
+        parsed.forEach(c => { byName[c.name] = c; });
+        return buildDefaults().map(def => {
+          const saved = byName[def.name];
+          return saved ? { ...def, ...saved, id: def.id } : def;
+        });
+      }
+    }
+  } catch(e) {}
+  return buildDefaults();
+})();
+
+let lastUpdated = localStorage.getItem('gd-updated') || null;
+let sortKey = 'subscribers';
+let sortDir = -1;
+let editId = null;
+let nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+let fetchStopped = false;
+
+function persist() {
+  localStorage.setItem('gd-v2', JSON.stringify(creators));
+  nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+}
+function stampUpdate() {
+  const d = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  lastUpdated = d;
+  localStorage.setItem('gd-updated', d);
+  document.getElementById('upd-display').textContent = d;
+}
+
+// ──────────────────────────────────────────────────────────
+// FORMAT
+// ──────────────────────────────────────────────────────────
+function fmtN(n) {
+  if (n == null) return '—';
+  const a = Math.abs(n);
+  let s;
+  if (a >= 1e9) s = (a/1e9).toFixed(2).replace(/\.?0+$/,'') + 'B';
+  else if (a >= 1e6) s = (a/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
+  else if (a >= 1e3) s = Math.round(a/1e3) + 'K';
+  else s = a.toLocaleString();
+  return (n < 0 ? '-' : '') + s;
+}
+function fmtG(n) {
+  if (n == null) return '—';
+  return (n >= 0 ? '+' : '-') + fmtN(Math.abs(n));
+}
+function fmtDelta(c) {
+  if (c.prevSubscribers == null || c.subscribers == null) return null;
+  return c.subscribers - c.prevSubscribers;
+}
+function fmtDeltaAge(c) {
+  if (!c.prevFetchedAt) return '';
+  const days = Math.round((Date.now() - c.prevFetchedAt) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return '1 day ago';
+  return `${days}d ago`;
+}
+function gc(n) {
+  if (n == null) return 'gn';
+  if (n >= 200000) return 'gm';
+  if (n >= 100000) return 'g100k';
+  if (n >= 50000)  return 'gb';
+  if (n >= 25000)  return 'gg';
+  if (n >= 10000)  return 'gs';
+  if (n < 0)       return 'gneg';
+  return 'gn';
+}
+
+// ──────────────────────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────────────────────
+function renderStats() {
+  document.getElementById('upd-display').textContent = lastUpdated || '—';
+  const n = creators.length;
+  document.getElementById('s-count').textContent = n;
+  const ts = creators.reduce((a,c) => a + (c.subscribers||0), 0);
+  document.getElementById('s-subs').textContent = fmtN(ts);
+  const tg = creators.filter(c=>c.growth30!=null);
+  if (tg.length) {
+    const top = tg.reduce((a,b) => (b.growth30>a.growth30?b:a));
+    document.getElementById('s-topg').textContent = `+${fmtN(top.growth30)} (${top.name})`;
+  } else document.getElementById('s-topg').textContent = '—';
+  const tv = creators.reduce((a,c)=>a+(c.views30||0),0);
+  document.getElementById('s-v30').textContent = fmtN(tv);
+  const act = creators.filter(c=>c.uploading==='yes').length;
+  document.getElementById('s-active').textContent = `${act} / ${n}`;
+  const cov = creators.filter(c=>c.subscribers!=null).length;
+  document.getElementById('s-cov').textContent = `${cov} / ${n} with data`;
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const ft = document.getElementById('f-type').value;
+  const fu = document.getElementById('f-upload').value;
+  const fl = document.getElementById('f-lang').value;
+  const fg = document.getElementById('f-growth').value;
+
+  let data = [...creators];
+  if (q) data = data.filter(c => c.name.toLowerCase().includes(q));
+  if (ft) data = data.filter(c => c.type === ft);
+  if (fu) data = data.filter(c => c.uploading === fu);
+  if (fl === 'en') data = data.filter(c => !c.language || c.language.toLowerCase() === 'english');
+  else if (fl === 'es') data = data.filter(c => c.language && c.language.toLowerCase() === 'spanish');
+  else if (fl === 'other') data = data.filter(c => c.language && !['english','spanish'].includes(c.language.toLowerCase()));
+  if (fg === 'mega') data = data.filter(c => c.growth30 >= 200000);
+  else if (fg === 'big') data = data.filter(c => c.growth30 >= 50000);
+  else if (fg === 'good') data = data.filter(c => c.growth30 >= 25000);
+  else if (fg === 'neg') data = data.filter(c => c.growth30 < 0);
+
+  data.sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (sortKey === 'name') return sortDir * (av||'').localeCompare(bv||'');
+    if (sortKey === 'uploading') {
+      const order = {yes:0,rare:1,no:2};
+      return sortDir * ((order[av]??3) - (order[bv]??3));
+    }
+    if (av==null) av = sortDir===1 ? Infinity : -Infinity;
+    if (bv==null) bv = sortDir===1 ? Infinity : -Infinity;
+    return sortDir * (av - bv);
+  });
+
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
+  document.getElementById('showing-count').textContent = data.length < creators.length ? `${data.length} of ${creators.length}` : `${creators.length} creators`;
+
+  if (!data.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  tbody.innerHTML = data.map((c,i) => {
+    const rank = i+1;
+    const sc = c.type==='shorts' ? 'stripe-shorts' : 'stripe-regular';
+    const tt = c.type==='shorts'
+      ? `<span class="type-tag tag-shorts">Shorts</span>`
+      : `<span class="type-tag tag-regular">Regular</span>`;
+    const lang = (c.language && c.language.toLowerCase()!=='english')
+      ? `<span class="lang-tag">${c.language}</span>` : `<span style="font-size:9px;color:var(--muted);font-family:var(--fm)">EN</span>`;
+    const uplHtml = c.uploading==='yes'
+      ? `<td class="upl"><span class="dot d-yes"></span>Yes</td>`
+      : c.uploading==='rare'
+      ? `<td class="upl"><span class="dot d-rare"></span>Rarely</td>`
+      : `<td class="upl"><span class="dot d-no"></span>Stopped</td>`;
+    const avatarHtml = c.avatar
+      ? `<img class="ch-avatar" src="${c.avatar}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="ch-avatar-placeholder"></div>`;
+    const delta = fmtDelta(c);
+    const age = fmtDeltaAge(c);
+    const growthHtml = delta != null
+      ? `<span class="gpill ${gc(delta)}" title="vs ${age}">${fmtG(delta)}<span style="opacity:.5;font-size:9px;margin-left:3px">${age}</span></span>`
+      : `<span class="gpill gn">—</span>`;
+    return `<tr>
+      <td class="stripe-cell"><div class="type-stripe ${sc}"></div></td>
+      <td class="rank-cell">${rank}</td>
+      <td class="name-cell"><div class="name-wrap">${avatarHtml}<a class="name-link" href="${c.url||'#'}" target="_blank" rel="noopener">${c.name}</a>${tt}</div></td>
+      <td class="num ${c.subscribers==null?'muted':''}">${c.subscribers!=null?fmtN(c.subscribers):'—'}</td>
+      <td class="num ${c.totalViews==null?'muted':''}">${c.totalViews!=null?fmtN(c.totalViews):'—'}</td>
+      <td class="growth-cell">${growthHtml}</td>
+      <td class="num ${c.views30==null?'muted':''}">${c.views30!=null?fmtN(c.views30):'—'}</td>
+      <td class="padded">${lang}</td>
+      ${uplHtml}
+      <td><button class="fetch-one-btn" data-id="${c.id}" onclick="fetchOne(${c.id})" title="Fetch stats for ${c.name}">⤓</button><button class="edit-btn" onclick="openEdit(${c.id})">✎</button></td>
+    </tr>`;
+  }).join('');
+
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sorted');
+    const sa = th.querySelector('.sa');
+    if (sa) sa.textContent='↕';
+  });
+  const sTh = document.getElementById('th-'+sortKey);
+  if (sTh) { sTh.classList.add('sorted'); const sa=sTh.querySelector('.sa'); if(sa) sa.textContent=sortDir===-1?' ↓':' ↑'; }
+}
+
+function sortBy(k) {
+  if (sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=-1; }
+  render();
+}
+function resetFilters() {
+  document.getElementById('search').value='';
+  document.getElementById('f-type').value='';
+  document.getElementById('f-upload').value='';
+  document.getElementById('f-lang').value='';
+  document.getElementById('f-growth').value='';
+  render();
+}
+
+// ──────────────────────────────────────────────────────────
+// YOUTUBE DATA API v3 — BATCHED FETCH
+// Resolves @handles in batches of 50, then fetches stats
+// in batches of 50. Fast, reliable, ~6 quota units total.
+// ──────────────────────────────────────────────────────────
+const YT_API_KEY = 'AIzaSyA_Q9m0UHUYJCKD3oKA666CS3kvCfWWa0Q';
+const YT_BASE = 'https://www.googleapis.com/youtube/v3';
+
+function parseUrl(url) {
+  if (!url) return null;
+  const u = url.replace(/\/+$/, '');
+  const mh = u.match(/youtube\.com\/@([^/?#]+)/);
+  if (mh) return { type: 'handle', raw: mh[1] };
+  const mc = u.match(/youtube\.com\/channel\/(UC[^/?#]+)/);
+  if (mc) return { type: 'channelId', raw: mc[1] };
+  return null;
+}
+
+// Safe fetch with timeout (AbortSignal.timeout can't be cloned in some environments)
+function fetchWithTimeout(url, ms = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
+// Resolve a single @handle → channelId
+async function resolveHandle(handle) {
+  const r = await fetchWithTimeout(`${YT_BASE}/channels?part=id&forHandle=${encodeURIComponent(handle)}&key=${YT_API_KEY}`);
+  const j = await r.json();
+  if (j.error) { console.warn('YT handle error:', j.error.message); return null; }
+  return j.items?.[0]?.id || null;
+}
+
+// Resolve a batch of handles → { handle_lowercase: channelId }
+async function resolveHandlesBatch(handles) {
+  const map = {};
+  const chunks = [];
+  for (let i = 0; i < handles.length; i += 10) chunks.push(handles.slice(i, i + 10));
+  for (const chunk of chunks) {
+    await Promise.all(chunk.map(async (h) => {
+      try {
+        const id = await resolveHandle(h);
+        if (id) map[h.toLowerCase()] = id;
+      } catch(e) { console.warn('resolve failed for', h, e.message); }
+    }));
+    await new Promise(r => setTimeout(r, 150));
+  }
+  return map;
+}
+
+// Fetch statistics + snippet (avatar) for up to 50 channel IDs at once
+async function fetchStatsBatch(channelIds) {
+  const map = {};
+  const chunks = [];
+  for (let i = 0; i < channelIds.length; i += 50) chunks.push(channelIds.slice(i, i + 50));
+  for (const chunk of chunks) {
+    try {
+      const ids = chunk.join(',');
+      const r = await fetchWithTimeout(`${YT_BASE}/channels?part=statistics,snippet&id=${ids}&maxResults=50&key=${YT_API_KEY}`, 15000);
+      const j = await r.json();
+      if (j.error) { console.warn('YT stats batch error:', j.error.message); continue; }
+      if (j.items) {
+        for (const item of j.items) {
+          const subs  = parseInt(item.statistics?.subscriberCount);
+          const views = parseInt(item.statistics?.viewCount);
+          const avatar = item.snippet?.thumbnails?.default?.url || null;
+          map[item.id] = {
+            subscribers: isNaN(subs)  ? null : subs,
+            totalViews:  isNaN(views) ? null : views,
+            avatar,
+          };
+        }
+      }
+    } catch(e) { console.warn('fetchStatsBatch error:', e.message); }
+    await new Promise(r => setTimeout(r, 150));
+  }
+  return map;
+}
+
+// Fetch & update a single creator by id (for the per-row button)
+async function fetchOne(creatorId) {
+  const c = creators.find(x => x.id === creatorId);
+  if (!c) return;
+  const btn = document.querySelector(`.fetch-one-btn[data-id="${creatorId}"]`);
+  if (btn) { btn.textContent = '⟳'; btn.disabled = true; }
+
+  try {
+    const p = parseUrl(c.url);
+    if (!p) throw new Error('Cannot parse URL');
+
+    let channelId = p.type === 'channelId' ? p.raw : await resolveHandle(p.raw);
+    if (!channelId) throw new Error('Handle not found');
+
+    const r = await fetchWithTimeout(`${YT_BASE}/channels?part=statistics,snippet&id=${channelId}&key=${YT_API_KEY}`);
+    const j = await r.json();
+    if (j.error) throw new Error(j.error.message);
+
+    const item = j.items?.[0];
+    if (!item) throw new Error('No stats returned');
+
+    const subs  = parseInt(item.statistics?.subscriberCount);
+    const views = parseInt(item.statistics?.viewCount);
+    const avatar = item.snippet?.thumbnails?.default?.url || null;
+
+    // Save previous sub count + timestamp for growth tracking
+    if (!isNaN(subs) && c.subscribers != null && c.subscribers !== subs) {
+      c.prevSubscribers = c.subscribers;
+      c.prevFetchedAt = c.fetchedAt || null;
+    }
+    if (!isNaN(subs))  c.subscribers = subs;
+    if (!isNaN(views)) c.totalViews  = views;
+    if (avatar) c.avatar = avatar;
+    c.fetchedAt = Date.now();
+
+    flashRow(creatorId);
+    renderStats();
+    persist();
+    if (btn) { btn.textContent = '✓'; btn.style.color = 'var(--green)'; setTimeout(() => { btn.textContent = '⤓'; btn.style.color = ''; btn.disabled = false; }, 2000); }
+  } catch(e) {
+    console.error('fetchOne failed:', e.message);
+    if (btn) { btn.textContent = '✗'; btn.style.color = 'var(--g-neg)'; setTimeout(() => { btn.textContent = '⤓'; btn.style.color = ''; btn.disabled = false; }, 2000); }
+  }
+}
+
+// Flash a table row green to show it was just updated
+function flashRow(creatorId) {
+  const c = creators.find(x => x.id === creatorId);
+  if (!c) return;
+  for (const row of document.querySelectorAll('#tbody tr')) {
+    const btn = row.querySelector('.edit-btn');
+    if (btn && btn.getAttribute('onclick') === `openEdit(${c.id})`) {
+      const cells = row.querySelectorAll('td');
+      if (cells[3]) { cells[3].textContent = c.subscribers != null ? fmtN(c.subscribers) : '—'; cells[3].className = 'num' + (c.subscribers==null?' muted':''); }
+      if (cells[4]) { cells[4].textContent = c.totalViews  != null ? fmtN(c.totalViews)  : '—'; cells[4].className = 'num' + (c.totalViews==null?' muted':''); }
+      if (cells[5]) cells[5].innerHTML = `<span class="gpill ${gc(c.growth30)}">${fmtG(c.growth30)}</span>`;
+      if (cells[6]) { cells[6].textContent = c.views30 != null ? fmtN(c.views30) : '—'; cells[6].className = 'num' + (c.views30==null?' muted':''); }
+      row.style.transition = 'background .2s';
+      row.style.background = 'rgba(52,224,160,0.13)';
+      setTimeout(() => { row.style.background = ''; }, 900);
+      break;
+    }
+  }
+}
+
+async function startFetchAll() {
+  fetchStopped = false;
+  const bar    = document.getElementById('fetch-bar');
+  const fill   = document.getElementById('progress-fill');
+  const status = document.getElementById('fetch-status');
+  const btn    = document.getElementById('fetch-btn');
+  bar.classList.add('show');
+  btn.disabled = true;
+  fill.style.width = '0%';
+
+  const total = creators.length;
+
+  // ── STEP 1: separate handles from direct channel IDs ──
+  status.textContent = 'Step 1/3 — Resolving @handles to channel IDs…';
+  fill.style.width = '5%';
+
+  const handleCreators   = []; // need handle→ID lookup
+  const channelIdCreators = []; // already have UC... ID
+
+  for (const c of creators) {
+    const p = parseUrl(c.url);
+    if (!p) continue;
+    if (p.type === 'channelId') { c._channelId = p.raw; channelIdCreators.push(c); }
+    else                        { c._handle = p.raw;    handleCreators.push(c); }
+  }
+
+  // ── STEP 2: resolve handles → channel IDs ──
+  status.textContent = `Step 2/3 — Resolving ${handleCreators.length} @handles (this may take ~${Math.ceil(handleCreators.length/10)*1}s)…`;
+  const handleMap = await resolveHandlesBatch(handleCreators.map(c => c._handle));
+  fill.style.width = '40%';
+
+  let resolved = 0;
+  for (const c of handleCreators) {
+    const id = handleMap[c._handle.toLowerCase()];
+    if (id) { c._channelId = id; resolved++; }
+  }
+  status.textContent = `Step 2/3 — Resolved ${resolved}/${handleCreators.length} handles. Fetching stats…`;
+
+  // ── STEP 3: fetch stats for all resolved channel IDs in batches of 50 ──
+  const allWithId = [...handleCreators, ...channelIdCreators].filter(c => c._channelId);
+  const allIds = allWithId.map(c => c._channelId);
+  fill.style.width = '55%';
+
+  status.textContent = `Step 3/3 — Fetching stats for ${allIds.length} channels in ${Math.ceil(allIds.length/50)} batch(es)…`;
+  const statsMap = await fetchStatsBatch(allIds);
+  fill.style.width = '90%';
+
+  // ── Apply results ──
+  let updated = 0, failed = 0;
+  const now = Date.now();
+  for (const c of creators) {
+    if (!c._channelId) { failed++; continue; }
+    const stats = statsMap[c._channelId];
+    if (stats) {
+      // Track previous subs for growth calculation
+      if (stats.subscribers != null && c.subscribers != null && c.subscribers !== stats.subscribers) {
+        c.prevSubscribers = c.subscribers;
+        c.prevFetchedAt = c.fetchedAt || null;
+      }
+      if (stats.subscribers != null) c.subscribers = stats.subscribers;
+      if (stats.totalViews  != null) c.totalViews  = stats.totalViews;
+      if (stats.avatar)              c.avatar       = stats.avatar;
+      c.fetchedAt = now;
+      flashRow(c.id);
+      updated++;
+    } else {
+      failed++;
+    }
+    delete c._channelId;
+    delete c._handle;
+  }
+
+  persist();
+  stampUpdate();
+  renderStats();
+  render();
+
+  fill.style.width = '100%';
+  status.textContent = `Done! ${updated} channels updated, ${failed} couldn't be found.`;
+  btn.disabled = false;
+  setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 5000);
+}
+
+function stopFetch() {
+  fetchStopped = true;
+  document.getElementById('fetch-btn').disabled = false;
+  document.getElementById('fetch-status').textContent = 'Stopped.';
+  persist(); stampUpdate(); renderStats(); render();
+  setTimeout(() => document.getElementById('fetch-bar').classList.remove('show'), 2000);
+}
+
+// ──────────────────────────────────────────────────────────
+// MODAL
+// ──────────────────────────────────────────────────────────
+function openAdd() {
+  editId = null;
+  document.getElementById('modal-title').textContent = 'Add Creator';
+  document.getElementById('del-btn').style.display = 'none';
+  ['f-name','f-url','f-subs','f-tv','f-g30','f-v30','f-sb'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('f-lang').value = 'English';
+  document.getElementById('f-upl').value = 'yes';
+  document.getElementById('f-ctype').value = 'regular';
+  document.getElementById('modal').classList.add('open');
+}
+function openEdit(id) {
+  const c = creators.find(x=>x.id===id); if(!c)return;
+  editId = id;
+  document.getElementById('modal-title').textContent = 'Edit Creator';
+  document.getElementById('del-btn').style.display = 'block';
+  document.getElementById('f-name').value = c.name||'';
+  document.getElementById('f-url').value = c.url||'';
+  document.getElementById('f-subs').value = c.subscribers??'';
+  document.getElementById('f-tv').value = c.totalViews??'';
+  document.getElementById('f-g30').value = c.growth30??'';
+  document.getElementById('f-v30').value = c.views30??'';
+  document.getElementById('f-lang').value = c.language||'English';
+  document.getElementById('f-upl').value = c.uploading||'yes';
+  document.getElementById('f-ctype').value = c.type||'regular';
+  document.getElementById('f-sb').value = c.sbUrl||'';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function pn(v) { const n=Number(v); return (v===''||v==null||isNaN(n))?null:n; }
+function saveC() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Name required.'); return; }
+  const obj = {
+    name, url: document.getElementById('f-url').value.trim(),
+    subscribers: pn(document.getElementById('f-subs').value),
+    totalViews: pn(document.getElementById('f-tv').value),
+    growth30: pn(document.getElementById('f-g30').value),
+    views30: pn(document.getElementById('f-v30').value),
+    language: document.getElementById('f-lang').value.trim()||'English',
+    uploading: document.getElementById('f-upl').value,
+    type: document.getElementById('f-ctype').value,
+    sbUrl: document.getElementById('f-sb').value.trim(),
+  };
+  if (editId!=null) {
+    const idx = creators.findIndex(c=>c.id===editId);
+    if (idx!==-1) creators[idx] = {...creators[idx], ...obj};
+  } else {
+    obj.id = nextId++;
+    creators.push(obj);
+  }
+  persist(); stampUpdate(); renderStats(); render(); closeModal();
+}
+function deleteC() {
+  if (!confirm('Remove this creator?')) return;
+  creators = creators.filter(c=>c.id!==editId);
+  persist(); stampUpdate(); renderStats(); render(); closeModal();
+}
+document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget)closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeManage();} });
+
+// ──────────────────────────────────────────────────────────
+// MANAGE / JSON
+// ──────────────────────────────────────────────────────────
+function openManage() {
+  document.getElementById('json-editor').value = JSON.stringify(creators, null, 2);
+  document.getElementById('json-msg').textContent='';
+  document.getElementById('manage-panel').classList.add('open');
+  document.getElementById('manage-panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeManage() { document.getElementById('manage-panel').classList.remove('open'); }
+function applyJSON() {
+  const msg = document.getElementById('json-msg');
+  try {
+    const p = JSON.parse(document.getElementById('json-editor').value);
+    if (!Array.isArray(p)) throw new Error('Must be a JSON array');
+    creators = p.map((c,i)=>({id:c.id??(nextId+i),...c}));
+    persist(); stampUpdate(); renderStats(); render();
+    msg.className='json-msg json-ok'; msg.textContent='✓ Applied!';
+    setTimeout(()=>{msg.textContent='';closeManage();},1200);
+  } catch(e) { msg.className='json-msg json-err'; msg.textContent='✗ '+e.message; }
+}
+function copyJSON() {
+  navigator.clipboard.writeText(document.getElementById('json-editor').value);
+  const msg=document.getElementById('json-msg');
+  msg.className='json-msg json-ok'; msg.textContent='✓ Copied!';
+  setTimeout(()=>msg.textContent='',1500);
+}
+function resetToDefaults() {
+  if (!confirm('Reset ALL data to defaults? This removes any fetched stats.')) return;
+  creators = buildDefaults();
+  persist(); renderStats(); render(); closeManage();
+}
+
+// ──────────────────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────────────────
+renderStats();
+render();
+</script>
+</body>
+</html>
