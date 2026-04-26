@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GD YouTuber Tracker</title>
+<script type="module">
+// Firebase is loaded as module — we expose what we need globally below
+</script>
+<!-- Firebase compat SDKs (easier for inline scripts) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -265,15 +271,28 @@ td.padded { padding: 8px 10px; }
 /* SB HINT */
 .sb-note { font-size: 10px; color: var(--muted); font-family: var(--fm); margin-top: 4px; line-height: 1.5; }
 .sb-note a { color: var(--accent); }
+.sync-dot { width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;background:var(--muted); }
+.sync-dot.synced { background:var(--green); }
+.sync-dot.syncing { background:#f59e0b;animation:pulse .8s ease-in-out infinite; }
+.sync-dot.error { background:var(--g-neg); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
 </style>
 </head>
 <body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div style="font-family:var(--fh);font-size:2rem;font-weight:700;color:var(--accent)">GD YouTuber Tracker</div>
+  <div style="width:32px;height:32px;border:3px solid var(--bg4);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite"></div>
+  <div style="font-family:var(--fm);font-size:12px;color:var(--muted)" id="load-msg">Connecting to database…</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
 <div id="sticky-top">
 <header>
   <div class="logo"><div class="logo-gem">GD</div><em>YouTuber Tracker</em></div>
   <div class="header-right">
-    <span class="upd-meta">Updated: <span id="upd-display">—</span></span>
+    <span class="upd-meta"><span class="sync-dot" id="sync-dot"></span>Updated: <span id="upd-display">—</span></span>
     <button class="btn green" onclick="startFetchAll()" id="fetch-btn">⟳ Fetch All Stats</button>
     <button class="btn" onclick="openManage()">⚙ Manage</button>
     <button class="btn primary" onclick="openAdd()">+ Add Creator</button>
@@ -858,39 +877,40 @@ function buildDefaults() {
   }));
 }
 
-let creators = (() => {
-  try {
-    const s = localStorage.getItem('gd-v2');
-    if (s) {
-      const parsed = JSON.parse(s);
-      if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0].name === 'string') {
-        const byName = {};
-        parsed.forEach(c => { byName[c.name] = c; });
-        return buildDefaults().map(def => {
-          const saved = byName[def.name];
-          return saved ? { ...def, ...saved, id: def.id } : def;
-        });
-      }
-    }
-  } catch(e) {}
-  return buildDefaults();
-})();
+// ── Firebase is initialized below in the INIT section ──
+let creators = buildDefaults(); // temporary until Firestore loads
 
-let lastUpdated = localStorage.getItem('gd-updated') || null;
+let lastUpdated = null;
 let sortKey = 'subscribers';
 let sortDir = -1;
 let editId = null;
 let nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
 let fetchStopped = false;
 
-function persist() {
-  localStorage.setItem('gd-v2', JSON.stringify(creators));
-  nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+function setSyncDot(state) {
+  const d = document.getElementById('sync-dot');
+  if (!d) return;
+  d.className = 'sync-dot ' + state;
 }
+
+async function persist() {
+  nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+  setSyncDot('syncing');
+  try {
+    await db.collection('tracker').doc('data').set({
+      creators: JSON.parse(JSON.stringify(creators)),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    setSyncDot('synced');
+  } catch(e) {
+    console.error('Firestore write failed:', e);
+    setSyncDot('error');
+  }
+}
+
 function stampUpdate() {
   const d = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   lastUpdated = d;
-  localStorage.setItem('gd-updated', d);
   document.getElementById('upd-display').textContent = d;
 }
 
@@ -1382,10 +1402,65 @@ function resetToDefaults() {
 }
 
 // ──────────────────────────────────────────────────────────
-// INIT
+// FIREBASE INIT + REAL-TIME SYNC
 // ──────────────────────────────────────────────────────────
-renderStats();
-render();
+const firebaseConfig = {
+  apiKey: "AIzaSyC-yEzf-dedtQhoUQx-qDsOnYyDvnUEHXc",
+  authDomain: "gd-yt-tracker.firebaseapp.com",
+  projectId: "gd-yt-tracker",
+  storageBucket: "gd-yt-tracker.firebasestorage.app",
+  messagingSenderId: "6446315793",
+  appId: "1:6446315793:web:86ec3b97355dea9c71b4b0",
+  measurementId: "G-219LKFCGPN"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Listen for real-time updates from Firestore
+db.collection('tracker').doc('data').onSnapshot(doc => {
+  const overlay = document.getElementById('loading-overlay');
+
+  if (doc.exists) {
+    const data = doc.data();
+    if (Array.isArray(data.creators) && data.creators.length > 0) {
+      // Merge: ensure all RAW channels exist, keep saved stats
+      const byName = {};
+      data.creators.forEach(c => { byName[c.name] = c; });
+      creators = buildDefaults().map(def => {
+        const saved = byName[def.name];
+        return saved ? { ...def, ...saved, id: def.id } : def;
+      });
+      nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+
+      // Show last updated from server timestamp
+      if (data.updatedAt) {
+        const d = data.updatedAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('upd-display').textContent = d;
+      }
+      setSyncDot('synced');
+    }
+  } else {
+    // First time ever — write defaults to Firestore
+    document.getElementById('load-msg').textContent = 'First run — saving defaults…';
+    persist();
+  }
+
+  // Hide loading overlay
+  if (overlay) overlay.style.display = 'none';
+  renderStats();
+  render();
+
+}, err => {
+  console.error('Firestore error:', err);
+  document.getElementById('load-msg').textContent = 'Database error: ' + err.message;
+  setSyncDot('error');
+  // Fall back to defaults so page still works
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.style.display = 'none';
+  renderStats();
+  render();
+});
 </script>
 </body>
 </html>
