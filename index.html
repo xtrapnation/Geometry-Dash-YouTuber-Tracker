@@ -1588,7 +1588,7 @@ function setAdminUI(owner) {
 // ── GOOGLE SIGN-IN (Identity Services — no SDK, no eval) ──
 function signIn() {
   google.accounts.oauth2.initTokenClient({
-    client_id: '6446315793-vdgha7p76lcct1tff3aksj0ucb0141ho.apps.googleusercontent.com', // get from Firebase Console > Authentication > Sign-in method > Google > Web client ID
+    client_id: '435236222119-ngk4j1an812ell5cee5tcf1o7r97nf20.apps.googleusercontent.com', // get from Firebase Console > Authentication > Sign-in method > Google > Web client ID
     scope: 'openid email profile https://www.googleapis.com/auth/datastore',
     callback: async (resp) => {
       if (resp.error) { alert('Sign-in failed: ' + resp.error); return; }
