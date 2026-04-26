@@ -356,6 +356,15 @@ td.padded { padding: 8px 10px; }
   </div>
 </header>
 
+<!-- UID BANNER: shows after Google sign-in so you can copy your UID -->
+<div id="uid-banner" style="display:none;background:#1a2a1a;border-bottom:1px solid #34e0a0;padding:10px 1.5rem;align-items:center;gap:12px;flex-wrap:wrap;font-family:monospace;font-size:12px;">
+  <span style="color:#34e0a0;font-weight:bold;">✓ Signed in!</span>
+  <span style="color:#aaa;">Your Google UID:</span>
+  <code id="uid-value" style="background:#0a1a0a;color:#4f8cff;padding:3px 10px;border-radius:4px;border:1px solid #4f8cff;cursor:pointer;" onclick="navigator.clipboard.writeText(this.textContent).then(()=>this.style.background='#1a3a1a')" title="Click to copy">—</code>
+  <span style="color:#aaa;">← Click to copy, then paste into <strong style="color:#fff;">OWNER_UIDS</strong> in the JS and into your <strong style="color:#fff;">Firestore rules</strong></span>
+  <button onclick="document.getElementById('uid-banner').style.display='none'" style="margin-left:auto;background:none;border:none;color:#666;cursor:pointer;font-size:16px;">✕</button>
+</div>
+
 <!-- FETCH PROGRESS -->
 <div id="fetch-bar">
   <span id="fetch-status">Fetching...</span>
@@ -962,7 +971,7 @@ function setSyncDot(state) {
 
 async function persist() {
   nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
-  // Always save locally first as fallback
+  // Save locally first so changes are never lost
   try { localStorage.setItem('gd-v2-local', JSON.stringify(creators)); } catch(e) {}
   setSyncDot('syncing');
   try {
@@ -972,8 +981,9 @@ async function persist() {
     });
     setSyncDot('synced');
   } catch(e) {
-    console.warn('Firestore write failed:', e.message);
-    setSyncDot('local');
+    console.warn('Firestore write failed:', e.code, e.message);
+    setSyncDot('error');
+    alert('Save to cloud failed: ' + e.message + '\n\nCheck that your UID is in OWNER_UIDS and in Firestore rules.');
   }
 }
 
@@ -1280,7 +1290,7 @@ function flashRow(creatorId) {
 }
 
 async function startFetchAll() {
-  if (!isOwner) { alert('Sign in as owner to fetch stats.'); return; }
+  if (!isOwner) { alert('Not authorized.'); return; }
   fetchStopped = false;
   const bar    = document.getElementById('fetch-bar');
   const fill   = document.getElementById('progress-fill');
@@ -1404,7 +1414,7 @@ function openEdit(id) {
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function pn(v) { const n=Number(v); return (v===''||v==null||isNaN(n))?null:n; }
 async function saveC() {
-  if (!isOwner) { alert('You must be signed in as the owner to save changes.'); return; }
+  if (!isOwner) { alert('Not authorized. Sign in with your owner Google account.'); return; }
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('Name required.'); return; }
   const obj = {
@@ -1433,7 +1443,7 @@ async function saveC() {
   stampUpdate();
 }
 async function deleteC() {
-  if (!isOwner) { alert('You must be signed in as the owner to delete creators.'); return; }
+  if (!isOwner) { alert('Not authorized. Sign in with your owner Google account.'); return; }
   if (!confirm('Remove this creator?')) return;
   creators = creators.filter(c => c.id !== editId);
   closeModal();
@@ -1456,7 +1466,7 @@ function openManage() {
 }
 function closeManage() { document.getElementById('manage-panel').classList.remove('open'); }
 function applyJSON() {
-  if (!isOwner) { alert('You must be signed in as the owner.'); return; }
+  if (!isOwner) { alert('Not authorized.'); return; }
   const msg = document.getElementById('json-msg');
   try {
     const p = JSON.parse(document.getElementById('json-editor').value);
@@ -1504,45 +1514,60 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ── GOOGLE AUTH ──────────────────────────────────────────
-const OWNER_UIDS = [
-  "ojPAgbd1tmOfVURN4oHleINFCYC3",
-  "8YDYsoYUOkOwqly80RBeffmM7Qk2"
-];
-
+// ── GOOGLE AUTH ──────────────────────────────────────────────
+// STEP: Sign in with Google → copy your UID from the banner → paste into Firestore rules
 let isOwner = false;
+
+// These are your whitelisted Google UIDs.
+// After signing in for the first time, a banner will show your real Google UID.
+// Replace the placeholder below with it, then update your Firestore rules to match.
+const OWNER_UIDS = [
+  "REPLACE_WITH_YOUR_GOOGLE_UID"
+];
 
 function setAdminUI(owner) {
   isOwner = owner;
-  // Show/hide admin-only buttons
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = owner ? '' : 'none';
   });
-  // Show/hide auth button
-  const authBtn = document.getElementById('auth-btn');
-  if (authBtn) {
-    if (owner) {
-      authBtn.textContent = '⎋ Sign Out';
-      authBtn.onclick = () => auth.signOut();
-      authBtn.className = 'btn';
-    } else {
-      authBtn.textContent = '🔑 Sign In';
-      authBtn.onclick = signInWithGoogle;
-      authBtn.className = 'btn green';
-    }
+  const btn = document.getElementById('auth-btn');
+  if (!btn) return;
+  if (owner) {
+    btn.textContent = '⎋ Sign Out';
+    btn.onclick = () => auth.signOut();
+    btn.className = 'btn';
+  } else {
+    btn.textContent = '🔑 Sign In';
+    btn.onclick = signInWithGoogle;
+    btn.className = 'btn green';
   }
 }
 
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e => console.warn('Sign-in failed:', e.message));
+  auth.signInWithPopup(provider).catch(e => alert('Sign-in failed: ' + e.message));
 }
 
 auth.onAuthStateChanged(user => {
-  const owner = user && OWNER_UIDS.includes(user.uid);
+  if (!user) { setAdminUI(false); return; }
+
+  const owner = OWNER_UIDS.includes(user.uid);
   setAdminUI(owner);
-  if (user) {
-    console.log('%c✓ Signed in as ' + user.displayName + ' (uid: ' + user.uid + ')', 'color:#34e0a0');
+
+  // Always show UID banner so you can copy it into OWNER_UIDS + Firestore rules
+  const banner = document.getElementById('uid-banner');
+  const uidSpan = document.getElementById('uid-value');
+  if (banner && uidSpan) {
+    uidSpan.textContent = user.uid;
+    banner.style.display = 'flex';
+    // Hide banner after 30s
+    setTimeout(() => banner.style.display = 'none', 30000);
+  }
+
+  if (owner) {
+    console.log('%c✓ Owner signed in: ' + user.displayName, 'color:#34e0a0;font-weight:bold');
+  } else {
+    console.warn('Signed in but UID not in whitelist:', user.uid);
   }
 });
 
@@ -1581,10 +1606,24 @@ db.collection('tracker').doc('data').onSnapshot(doc => {
   render();
 
 }, err => {
-  console.error('Firestore error:', err);
-  document.getElementById('load-msg').textContent = 'Database error: ' + err.message;
+  console.warn('Firestore read blocked, trying localStorage:', err.message);
   setSyncDot('error');
-  // Fall back to defaults so page still works
+  try {
+    const local = localStorage.getItem('gd-v2-local');
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const byName = {};
+        parsed.forEach(c => { byName[c.name] = c; });
+        creators = buildDefaults().map(def => {
+          const saved = byName[def.name];
+          return saved ? { ...def, ...saved, id: def.id } : def;
+        });
+        parsed.forEach(c => { if (!creators.find(x => x.id === c.id)) creators.push(c); });
+        nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+      }
+    }
+  } catch(e) {}
   const overlay = document.getElementById('loading-overlay');
   if (overlay) overlay.style.display = 'none';
   renderStats();
