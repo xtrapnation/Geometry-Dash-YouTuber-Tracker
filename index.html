@@ -975,6 +975,10 @@ async function persist() {
         totalViews:  c.totalViews  != null ? { integerValue: String(c.totalViews)  } : { nullValue: null },
         growth30:    c.growth30    != null ? { integerValue: String(c.growth30)    } : { nullValue: null },
         views30:     c.views30     != null ? { integerValue: String(c.views30)     } : { nullValue: null },
+        avatar:      { stringValue: c.avatar ?? '' },
+        prevSubscribers: c.prevSubscribers != null ? { integerValue: String(c.prevSubscribers) } : { nullValue: null },
+        prevFetchedAt:   c.prevFetchedAt   != null ? { integerValue: String(c.prevFetchedAt)   } : { nullValue: null },
+        fetchedAt:       c.fetchedAt       != null ? { integerValue: String(c.fetchedAt)       } : { nullValue: null },
         sbUrl:       { stringValue: c.sbUrl ?? '' },
       }}}))}},
       updatedAt: { timestampValue: new Date().toISOString() }
@@ -1639,7 +1643,11 @@ function signOut() {
     data.creators.forEach(c => { byName[c.name] = c; });
     creators = buildDefaults().map(def => {
       const saved = byName[def.name];
-      return saved ? { ...def, ...saved, id: def.id } : def;
+      if (!saved) return def;
+      const merged = { ...def, ...saved, id: def.id };
+      // Treat empty string avatar as null
+      if (!merged.avatar) merged.avatar = null;
+      return merged;
     });
     // Also include any extra creators added beyond defaults
     data.creators.forEach(c => { if (!creators.find(x => x.id === c.id)) creators.push(c); });
