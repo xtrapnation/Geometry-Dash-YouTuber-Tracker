@@ -274,6 +274,7 @@ td.padded { padding: 8px 10px; }
 .sync-dot.synced { background:var(--green); }
 .sync-dot.syncing { background:#f59e0b;animation:pulse .8s ease-in-out infinite; }
 .sync-dot.error { background:var(--g-neg); }
+.sync-dot.local { background:#f59e0b; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
 
 /* MOBILE */
@@ -348,9 +349,10 @@ td.padded { padding: 8px 10px; }
   <div class="logo">GD <em>YouTuber Tracker</em></div>
   <div class="header-right">
     <span class="upd-meta"><span class="sync-dot" id="sync-dot"></span>Updated: <span id="upd-display">—</span></span>
-    <button class="btn green" onclick="startFetchAll()" id="fetch-btn">⟳ Fetch All Stats</button>
-    <button class="btn" onclick="openManage()">⚙ Manage</button>
-    <button class="btn primary" onclick="openAdd()">+ Add Creator</button>
+    <button class="btn green admin-only" onclick="startFetchAll()" id="fetch-btn" style="display:none">⟳ Fetch All Stats</button>
+    <button class="btn admin-only" onclick="openManage()" style="display:none">⚙ Manage</button>
+    <button class="btn primary admin-only" onclick="openAdd()" style="display:none">+ Add Creator</button>
+    <button class="btn green" id="auth-btn" onclick="signInWithGoogle()">🔑 Sign In</button>
   </div>
 </header>
 
@@ -960,6 +962,8 @@ function setSyncDot(state) {
 
 async function persist() {
   nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+  // Always save locally first as fallback
+  try { localStorage.setItem('gd-v2-local', JSON.stringify(creators)); } catch(e) {}
   setSyncDot('syncing');
   try {
     await db.collection('tracker').doc('data').set({
@@ -968,8 +972,8 @@ async function persist() {
     });
     setSyncDot('synced');
   } catch(e) {
-    console.error('Firestore write failed:', e);
-    setSyncDot('error');
+    console.warn('Firestore write failed:', e.message);
+    setSyncDot('local');
   }
 }
 
@@ -1276,6 +1280,7 @@ function flashRow(creatorId) {
 }
 
 async function startFetchAll() {
+  if (!isOwner) { alert('Sign in as owner to fetch stats.'); return; }
   fetchStopped = false;
   const bar    = document.getElementById('fetch-bar');
   const fill   = document.getElementById('progress-fill');
@@ -1399,6 +1404,7 @@ function openEdit(id) {
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function pn(v) { const n=Number(v); return (v===''||v==null||isNaN(n))?null:n; }
 async function saveC() {
+  if (!isOwner) { alert('You must be signed in as the owner to save changes.'); return; }
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('Name required.'); return; }
   const obj = {
@@ -1427,6 +1433,7 @@ async function saveC() {
   stampUpdate();
 }
 async function deleteC() {
+  if (!isOwner) { alert('You must be signed in as the owner to delete creators.'); return; }
   if (!confirm('Remove this creator?')) return;
   creators = creators.filter(c => c.id !== editId);
   closeModal();
@@ -1449,6 +1456,7 @@ function openManage() {
 }
 function closeManage() { document.getElementById('manage-panel').classList.remove('open'); }
 function applyJSON() {
+  if (!isOwner) { alert('You must be signed in as the owner.'); return; }
   const msg = document.getElementById('json-msg');
   try {
     const p = JSON.parse(document.getElementById('json-editor').value);
@@ -1496,11 +1504,47 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Sign in anonymously so Firestore rules can identify you
-auth.signInAnonymously().then(cred => {
-  console.log('%c🔑 Your Firebase UID (add this to Firestore rules):', 'color:#34e0a0;font-weight:bold;font-size:13px');
-  console.log('%c' + cred.user.uid, 'color:#4f8cff;font-size:14px;font-weight:bold');
-}).catch(e => console.warn('Auth failed:', e.message));
+// ── GOOGLE AUTH ──────────────────────────────────────────
+const OWNER_UIDS = [
+  "ojPAgbd1tmOfVURN4oHleINFCYC3",
+  "8YDYsoYUOkOwqly80RBeffmM7Qk2"
+];
+
+let isOwner = false;
+
+function setAdminUI(owner) {
+  isOwner = owner;
+  // Show/hide admin-only buttons
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = owner ? '' : 'none';
+  });
+  // Show/hide auth button
+  const authBtn = document.getElementById('auth-btn');
+  if (authBtn) {
+    if (owner) {
+      authBtn.textContent = '⎋ Sign Out';
+      authBtn.onclick = () => auth.signOut();
+      authBtn.className = 'btn';
+    } else {
+      authBtn.textContent = '🔑 Sign In';
+      authBtn.onclick = signInWithGoogle;
+      authBtn.className = 'btn green';
+    }
+  }
+}
+
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(e => console.warn('Sign-in failed:', e.message));
+}
+
+auth.onAuthStateChanged(user => {
+  const owner = user && OWNER_UIDS.includes(user.uid);
+  setAdminUI(owner);
+  if (user) {
+    console.log('%c✓ Signed in as ' + user.displayName + ' (uid: ' + user.uid + ')', 'color:#34e0a0');
+  }
+});
 
 // Listen for real-time updates from Firestore
 db.collection('tracker').doc('data').onSnapshot(doc => {
