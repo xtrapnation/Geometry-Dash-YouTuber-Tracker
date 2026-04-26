@@ -1114,7 +1114,7 @@ function render() {
       ? `<td class="upl" style="text-align:center"><span class="dot d-rare"></span>Rarely</td>`
       : `<td class="upl" style="text-align:center"><span class="dot d-no"></span>Stopped</td>`;
     const avatarHtml = c.avatar
-      ? `<img class="ch-avatar" src="${c.avatar}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      ? `<img class="ch-avatar" src="${c.avatar}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ch-avatar-placeholder'}))">`
       : `<div class="ch-avatar-placeholder"></div>`;
     const delta = fmtDelta(c);
     const age = fmtDeltaAge(c);
@@ -1222,7 +1222,9 @@ async function fetchStatsBatch(channelIds) {
         for (const item of j.items) {
           const subs  = parseInt(item.statistics?.subscriberCount);
           const views = parseInt(item.statistics?.viewCount);
-          const avatar = item.snippet?.thumbnails?.default?.url || null;
+          const avatar = item.snippet?.thumbnails?.medium?.url 
+                      || item.snippet?.thumbnails?.default?.url 
+                      || null;
           map[item.id] = {
             subscribers: isNaN(subs)  ? null : subs,
             totalViews:  isNaN(views) ? null : views,
@@ -1259,7 +1261,9 @@ async function fetchOne(creatorId) {
 
     const subs  = parseInt(item.statistics?.subscriberCount);
     const views = parseInt(item.statistics?.viewCount);
-    const avatar = item.snippet?.thumbnails?.default?.url || null;
+    const avatar = item.snippet?.thumbnails?.medium?.url 
+                || item.snippet?.thumbnails?.default?.url 
+                || null;
 
     // Save previous sub count + timestamp for growth tracking
     if (!isNaN(subs) && c.subscribers != null && c.subscribers !== subs) {
