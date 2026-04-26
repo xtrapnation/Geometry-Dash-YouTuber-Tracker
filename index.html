@@ -1515,7 +1515,7 @@ function closeLegend() {
 // ── CONFIG ───────────────────────────────────────────────
 const PROJECT   = 'gd-yt-tracker';
 const CLIENT_ID = '6446315793-o0a7b0q8ik5hl6r5g5k5h5h5h5h5h5h.apps.googleusercontent.com';
-const OWNER_UIDS = ['ysODMoAvGmhHDh0IrjwhVzsKk3f2'];
+const OWNER_UIDS = ['101152331708242621748'];
 // Firestore REST base URL (public read, owner write)
 const FS_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/tracker/data`;
 
@@ -1588,7 +1588,7 @@ function setAdminUI(owner) {
 // ── GOOGLE SIGN-IN (Identity Services — no SDK, no eval) ──
 function signIn() {
   google.accounts.oauth2.initTokenClient({
-    client_id: '435236222119-ngk4j1an812ell5cee5tcf1o7r97nf20.apps.googleusercontent.com', // get from Firebase Console > Authentication > Sign-in method > Google > Web client ID
+    client_id: '6446315793-REPLACE_SUFFIX.apps.googleusercontent.com', // get from Firebase Console > Authentication > Sign-in method > Google > Web client ID
     scope: 'openid email profile https://www.googleapis.com/auth/datastore',
     callback: async (resp) => {
       if (resp.error) { alert('Sign-in failed: ' + resp.error); return; }
