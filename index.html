@@ -204,7 +204,7 @@ td {
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
 }
 td:first-child { border-left: 1px solid var(--border); border-radius: 5px 0 0 5px; overflow: hidden; }
-td:last-child { border-right: 1px solid var(--border); border-radius: 0 5px 5px 0; padding: 0 8px; }
+td:last-child { padding: 0; }
 td.padded { padding: 8px 10px; }
 
 /* TYPE STRIPE */
@@ -217,9 +217,9 @@ td.padded { padding: 8px 10px; }
 
 .name-cell { padding: 12px 12px !important; }
 .name-wrap { display: flex; align-items: center; gap: 9px; }
-.ch-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg4); }
-.ch-avatar-placeholder { width: 38px; height: 38px; border-radius: 50%; background: var(--bg4); flex-shrink: 0; }
-.name-link { color: var(--text); text-decoration: none; font-family: var(--fh); font-size: 17px; font-weight: 600; letter-spacing: .02em; }
+.ch-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg4); }
+.ch-avatar-placeholder { width: 42px; height: 42px; border-radius: 50%; background: var(--bg4); flex-shrink: 0; }
+.name-link { color: var(--text); text-decoration: none; font-family: var(--fh); font-size: 18px; font-weight: 600; letter-spacing: .02em; }
 .name-link:hover { color: var(--accent); }
 .type-tag {
   font-size: 9px; font-family: var(--fm); padding: 2px 6px; border-radius: 3px;
@@ -228,14 +228,14 @@ td.padded { padding: 8px 10px; }
 .tag-shorts { background: rgba(244,63,94,.15); color: var(--shorts-stripe); border: 1px solid rgba(244,63,94,.25); }
 .tag-regular { background: rgba(79,140,255,.15); color: var(--regular-stripe); border: 1px solid rgba(79,140,255,.25); }
 
-.num { padding: 10px 12px !important; font-family: var(--fm); font-size: 14px; text-align: right; color: var(--text); }
+.num { padding: 8px 12px !important; font-family: var(--fm); font-size: 15px; text-align: right; color: var(--text); }
 .num.muted { color: var(--muted); }
-.num-c { padding: 10px 12px !important; font-family: var(--fm); font-size: 14px; text-align: center; color: var(--text); }
+.num-c { padding: 8px 12px !important; font-family: var(--fm); font-size: 15px; text-align: center; color: var(--text); }
 .num-c.muted { color: var(--muted); }
 
 .growth-cell { padding: 10px 12px !important; text-align: center; }
 .gpill {
-  display: inline-block; padding: 4px 10px; border-radius: 4px;
+  display: inline-block; padding: 3px 9px; border-radius: 4px;
   font-size: 12px; font-weight: 600; font-family: var(--fm); letter-spacing: .04em;
 }
 .gm    { background: rgba(244,114,182,.15); color: var(--g-mega);  border: 1px solid rgba(244,114,182,.35); }
@@ -249,6 +249,9 @@ td.padded { padding: 8px 10px; }
 .lang-tag { font-size: 9px; font-family: var(--fm); color: var(--muted); background: var(--bg3); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); }
 
 .upl { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 10px; font-family: var(--fm); padding: 8px 10px !important; }
+.upl-cell { padding: 0 10px !important; border-right: 1px solid var(--border); border-radius: 0 5px 5px 0; }
+.upl-status { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; font-family: var(--fm); color: var(--text); }
+.upl-btns { display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 1px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .d-yes  { background: var(--green); box-shadow: 0 0 4px var(--green); }
 .d-rare { background: var(--g-big); }
@@ -516,8 +519,8 @@ td.padded { padding: 8px 10px; }
         <th onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
         <th onclick="sortBy('subscribers')" id="th-subscribers" style="text-align:center">Subscribers<span class="sa">↕</span></th>
         <th onclick="sortBy('totalViews')" id="th-totalViews" style="text-align:center">Total Views<span class="sa">↕</span></th>
-        <th onclick="sortBy('viewGrowth')" id="th-viewGrowth" style="text-align:center">View Growth<span class="sa">↕</span></th>
         <th onclick="sortBy('subGrowth')" id="th-subGrowth" style="text-align:center">Sub Growth<span class="sa">↕</span></th>
+        <th onclick="sortBy('viewGrowth')" id="th-viewGrowth" style="text-align:center">View Growth<span class="sa">↕</span></th>
         <th style="text-align:center">Language</th>
         <th onclick="sortBy('uploading')" id="th-uploading" style="text-align:center">Uploading<span class="sa">↕</span></th>
         <th style="width:32px"></th>
@@ -1177,12 +1180,20 @@ function render() {
   else if (fg === 'neg') data = data.filter(c => c.growth30 < 0);
 
   data.sort((a,b) => {
-    let av = a[sortKey], bv = b[sortKey];
-    if (sortKey === 'name') return sortDir * (av||'').localeCompare(bv||'');
+    if (sortKey === 'name') return sortDir * ((a.name||'').localeCompare(b.name||''));
     if (sortKey === 'uploading') {
       const order = {yes:0,rare:1,no:2};
-      return sortDir * ((order[av]??3) - (order[bv]??3));
+      return sortDir * ((order[a.uploading]??3) - (order[b.uploading]??3));
     }
+    if (sortKey === 'subGrowth' || sortKey === 'growth30') {
+      const av = fmtDelta(a); const bv = fmtDelta(b);
+      return sortDir * ((av ?? (sortDir===1?Infinity:-Infinity)) - (bv ?? (sortDir===1?Infinity:-Infinity)));
+    }
+    if (sortKey === 'viewGrowth') {
+      const av = fmtViewDelta(a); const bv = fmtViewDelta(b);
+      return sortDir * ((av ?? (sortDir===1?Infinity:-Infinity)) - (bv ?? (sortDir===1?Infinity:-Infinity)));
+    }
+    let av = a[sortKey], bv = b[sortKey];
     if (av==null) av = sortDir===1 ? Infinity : -Infinity;
     if (bv==null) bv = sortDir===1 ? Infinity : -Infinity;
     return sortDir * (av - bv);
@@ -1203,11 +1214,11 @@ function render() {
       : `<span class="type-tag tag-regular">Regular</span>`;
     const lang = (c.language && c.language.toLowerCase()!=='english')
       ? `<span class="lang-tag">${c.language}</span>` : `<span style="font-size:9px;color:var(--muted);font-family:var(--fm)">EN</span>`;
-    const uplHtml = c.uploading==='yes'
-      ? `<td class="upl"><span class="dot d-yes"></span>Yes</td>`
+    const uplStatus = c.uploading==='yes'
+      ? `<span class="dot d-yes"></span>Yes`
       : c.uploading==='rare'
-      ? `<td class="upl"><span class="dot d-rare"></span>Rarely</td>`
-      : `<td class="upl"><span class="dot d-no"></span>Stopped</td>`;
+      ? `<span class="dot d-rare"></span>Rarely`
+      : `<span class="dot d-no"></span>Stopped`;
     const avatarHtml = c.avatar
       ? `<img class="ch-avatar" src="${c.avatar}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ch-avatar-placeholder'}))">`
       : `<div class="ch-avatar-placeholder"></div>`;
@@ -1226,11 +1237,13 @@ function render() {
       <td class="name-cell"><div class="name-wrap">${avatarHtml}<a class="name-link" href="${c.url||'#'}" target="_blank" rel="noopener">${c.name}</a>${tt}${c.name.toLowerCase()==='xtrapnation'?'<span style="font-size:8px;font-family:var(--fm);padding:2px 5px;border-radius:3px;background:rgba(52,224,160,.15);color:var(--green);border:1px solid rgba(52,224,160,.3);letter-spacing:.05em">CURATOR</span>':''}</div></td>
       <td class="num-c ${c.subscribers==null?'muted':''}">${c.subscribers!=null?fmtN(c.subscribers):'—'}</td>
       <td class="num-c ${c.totalViews==null?'muted':''}">${c.totalViews!=null?fmtN(c.totalViews):'—'}</td>
-      <td class="growth-cell">${viewGrowthHtml}</td>
       <td class="growth-cell">${growthHtml}</td>
+      <td class="growth-cell">${viewGrowthHtml}</td>
       <td class="padded" style="text-align:center">${lang}</td>
-      ${uplHtml}
-      <td><button class="fetch-one-btn" data-id="${c.id}" onclick="fetchOne(${c.id})" title="Fetch stats for ${c.name}">⤓</button><button class="edit-btn" onclick="openEdit(${c.id})">✎</button></td>
+      <td class="upl-cell">
+        <div class="upl-status">${uplStatus}</div>
+        <div class="upl-btns"><button class="fetch-one-btn" data-id="${c.id}" onclick="fetchOne(${c.id})" title="Fetch stats">⤓</button><button class="edit-btn" onclick="openEdit(${c.id})">✎</button></div>
+      </td>
     </tr>`;
   }).join('');
 
