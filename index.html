@@ -170,6 +170,7 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 .stat-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
 }
+.stat-card.c6, .stat-card.c7 { min-width: 180px; }
 .stat-card.c1::before { background: linear-gradient(90deg, #4f8cff, #7bb3ff); }
 .stat-card.c2::before { background: linear-gradient(90deg, #34e0a0, #5eedba); }
 .stat-card.c3::before { background: linear-gradient(90deg, #c084fc, #d4a0ff); }
@@ -177,10 +178,21 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 .stat-card.c5::before { background: linear-gradient(90deg, #f87171, #fca5a5); }
 .stat-card.c6::before { background: linear-gradient(90deg, #818cf8, #a5b4fc); }
 .stat-card.c7::before { background: linear-gradient(90deg, #fb923c, #fdba74); }
-.stat-top { font-size: 12px; margin-bottom: 3px; }
-.stat-fastest { display: flex; align-items: center; gap: 7px; margin-top: 4px; }
-.stat-fast-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.stat-fast-name { font-family: var(--fh); font-size: .9rem; font-weight: 700; color: var(--text); }
+.stat-top { font-size: 12px; margin-bottom: 6px; }
+.stat-fastest { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.stat-fast-img {
+  width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  border: 2px solid var(--border2); background: var(--bg4);
+}
+.stat-fast-placeholder {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: var(--bg4); border: 2px solid var(--border2); display: flex;
+  align-items: center; justify-content: center; font-size: 16px;
+}
+.stat-fast-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.stat-fast-name { font-family: var(--fh); font-size: .92rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-fast-growth { font-family: var(--fm); font-size: 11px; font-weight: 600; color: var(--green); }
+.stat-fast-label { font-family: var(--fm); font-size: 9px; color: var(--muted); }
 .stat-icon { font-size: 13px; opacity: .7; display: inline; margin-right: 5px; }
 .stat-lbl { font-family: var(--fh); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: inline; }
 .stat-val { font-family: var(--fh); font-size: 1.25rem; font-weight: 700; color: var(--text); line-height: 1; margin-top: 4px; }
@@ -228,13 +240,14 @@ select:focus { border-color: var(--accent); }
 .qv-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
 /* ── TABLE ── */
-.table-wrap { overflow-x: auto; padding: 12px 1.5rem 60px; }
+.table-outer { overflow-x: auto; padding: 0 1.5rem 60px; }
+.table-wrap { overflow-y: auto; max-height: calc(100vh - var(--table-top, 200px)); }
 table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width: 900px; }
 .col-header {
   background: var(--bg); padding: 8px 12px; font-family: var(--fh);
   font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
   color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap;
-  position: sticky; top: var(--table-top, 56px); z-index: 10;
+  position: sticky; top: 0; z-index: 10;
   border-bottom: 2px solid var(--border2);
 }
 .col-header.sorted { color: var(--accent); }
@@ -445,14 +458,24 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
     <div class="stat-top">🚀 <span class="stat-lbl">Fastest Sub Growth</span></div>
     <div class="stat-fastest">
       <img class="stat-fast-img" id="s-top-subs-img" src="" alt="" style="display:none">
-      <div><div class="stat-fast-name" id="s-top-subs-name">—</div><div class="stat-sub" id="s-top-subs-val"></div></div>
+      <div class="stat-fast-placeholder" id="s-top-subs-placeholder">👤</div>
+      <div class="stat-fast-info">
+        <div class="stat-fast-name" id="s-top-subs-name">—</div>
+        <div class="stat-fast-growth" id="s-top-subs-val"></div>
+        <div class="stat-fast-label">subs in 30 days</div>
+      </div>
     </div>
   </div>
   <div class="stat-card c7">
     <div class="stat-top">📈 <span class="stat-lbl">Fastest View Growth</span></div>
     <div class="stat-fastest">
       <img class="stat-fast-img" id="s-top-views-img" src="" alt="" style="display:none">
-      <div><div class="stat-fast-name" id="s-top-views-name">—</div><div class="stat-sub" id="s-top-views-val"></div></div>
+      <div class="stat-fast-placeholder" id="s-top-views-placeholder">👤</div>
+      <div class="stat-fast-info">
+        <div class="stat-fast-name" id="s-top-views-name">—</div>
+        <div class="stat-fast-growth" id="s-top-views-val"></div>
+        <div class="stat-fast-label">views in 30 days</div>
+      </div>
     </div>
   </div>
 </div>
@@ -508,7 +531,8 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
 </div>
 
 <!-- TABLE -->
-<div class="table-wrap">
+<div class="table-outer">
+<div class="table-wrap" id="table-wrap">
   <table id="tbl">
     <thead>
       <tr>
@@ -526,7 +550,8 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
     <tbody id="tbody"></tbody>
   </table>
   <div class="empty" id="empty" style="display:none"><h3>No creators found</h3><p>Try adjusting your search or filters.</p></div>
-</div>
+</div><!-- table-wrap -->
+</div><!-- table-outer -->
 
 <!-- LEGEND POPUP -->
 <div id="legend-popup" onclick="if(event.target===this)closeLegend()">
@@ -1195,15 +1220,25 @@ function renderStats() {
   if (withSubG.length) {
     const top = withSubG.reduce((a,b) => b.subGrowth > a.subGrowth ? b : a);
     const el = document.getElementById('s-top-subs-name'); if (el) el.textContent = top.name;
-    const ve = document.getElementById('s-top-subs-val'); if (ve) ve.textContent = '+' + fmtN(top.subGrowth) + ' subs / 30d';
-    const im = document.getElementById('s-top-subs-img'); if (im) { im.src = top.avatar||''; im.style.display = top.avatar ? 'block' : 'none'; }
+    const ve = document.getElementById('s-top-subs-val'); if (ve) ve.textContent = '+' + fmtN(top.subGrowth);
+    const im = document.getElementById('s-top-subs-img');
+    const ph = document.getElementById('s-top-subs-placeholder');
+    if (im && ph) {
+      if (top.avatar) { im.src = top.avatar; im.style.display = 'block'; ph.style.display = 'none'; }
+      else { im.style.display = 'none'; ph.style.display = 'flex'; }
+    }
   }
   const withViewG = creators.filter(c => c.viewGrowth != null && c.viewGrowth > 0);
   if (withViewG.length) {
     const top2 = withViewG.reduce((a,b) => b.viewGrowth > a.viewGrowth ? b : a);
     const el2 = document.getElementById('s-top-views-name'); if (el2) el2.textContent = top2.name;
-    const ve2 = document.getElementById('s-top-views-val'); if (ve2) ve2.textContent = '+' + fmtN(top2.viewGrowth) + ' views / 30d';
-    const im2 = document.getElementById('s-top-views-img'); if (im2) { im2.src = top2.avatar||''; im2.style.display = top2.avatar ? 'block' : 'none'; }
+    const ve2 = document.getElementById('s-top-views-val'); if (ve2) ve2.textContent = '+' + fmtN(top2.viewGrowth);
+    const im2 = document.getElementById('s-top-views-img');
+    const ph2 = document.getElementById('s-top-views-placeholder');
+    if (im2 && ph2) {
+      if (top2.avatar) { im2.src = top2.avatar; im2.style.display = 'block'; ph2.style.display = 'none'; }
+      else { im2.style.display = 'none'; ph2.style.display = 'flex'; }
+    }
   }
 }
 
@@ -1916,6 +1951,8 @@ function updateTableTop() {
   if (controls) top += controls.offsetHeight;
   if (quickViews) top += quickViews.offsetHeight;
   document.documentElement.style.setProperty('--table-top', top + 'px');
+  const tw = document.getElementById('table-wrap');
+  if (tw) tw.style.maxHeight = (window.innerHeight - top) + 'px';
 }
 // Run on load and on resize
 window.addEventListener('resize', updateTableTop);
