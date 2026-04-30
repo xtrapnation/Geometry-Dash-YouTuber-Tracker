@@ -135,24 +135,26 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 .btn.danger { background: transparent; border-color: var(--g-neg); color: var(--g-neg); }
 .btn.danger:hover { background: rgba(248,113,113,.1); }
 
-/* ── UPDATE BANNER ── */
-#update-banner {
-  background: linear-gradient(90deg,rgba(79,140,255,.08),rgba(52,224,160,.05));
-  border-bottom: 1px solid rgba(79,140,255,.18);
-  overflow: hidden; max-height: 36px; transition: max-height .3s ease;
+/* ── UPDATES POPUP ── */
+#updates-popup {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px;
+  min-width: 320px; max-width: 400px; z-index: 400;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45);
+  padding: 14px 16px;
 }
-.banner-inner {
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 1.5rem; font-family: var(--fm); font-size: 10px;
+#updates-popup.open { display: block; }
+.updates-popup-title {
+  font-family: var(--fh); font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 10px;
 }
-.banner-tag {
-  background: var(--accent); color: #fff; border-radius: 3px;
-  padding: 1px 6px; font-size: 8px; font-weight: 700;
-  letter-spacing: .1em; flex-shrink: 0;
+.update-entry {
+  padding: 7px 0; border-top: 1px solid var(--border);
+  font-family: var(--fm); font-size: 10px; color: var(--muted); line-height: 1.5;
 }
-#banner-text { color: var(--muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex: 1; min-width: 0; }
-#banner-toggle { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 10px; padding: 0; flex-shrink: 0; font-family: var(--fm); }
-#banner-expanded { display: none; padding: 0 1.5rem 10px; }
+.update-entry:first-of-type { border-top: none; }
+.btn-updates-wrap { position: relative; }
 
 /* ── STATS CARDS ── */
 .stats-row {
@@ -232,7 +234,7 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
   background: var(--bg); padding: 8px 12px; font-family: var(--fh);
   font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
   color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap;
-  position: sticky; top: 56px; z-index: 10;
+  position: sticky; top: var(--table-top, 56px); z-index: 10;
   border-bottom: 2px solid var(--border2);
 }
 .col-header.sorted { color: var(--accent); }
@@ -367,16 +369,6 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
   <div id="load-msg">Connecting to database…</div>
 </div>
 
-<!-- UPDATE BANNER -->
-<div id="update-banner">
-  <div class="banner-inner">
-    <span class="banner-tag">UPDATES</span>
-    <span id="banner-text"></span>
-    <button id="banner-toggle" onclick="expandBanner()">▼ more</button>
-  </div>
-  <div id="banner-expanded"></div>
-</div>
-
 <!-- NAV HEADER -->
 <header class="nav-header">
   <div class="nav-logo">
@@ -389,6 +381,13 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
     <button class="btn green admin-only" onclick="startFetchAll()" id="fetch-btn">⟳ Fetch All Stats</button>
     <button class="btn admin-only" onclick="openManage()">⚙ Manage</button>
     <button class="btn primary admin-only" onclick="openAdd()">+ Add Creator</button>
+    <div class="btn-updates-wrap">
+      <button class="btn" id="updates-btn" onclick="toggleUpdates()" title="View updates">📋 Updates</button>
+      <div id="updates-popup">
+        <div class="updates-popup-title">📋 Changelog</div>
+        <div id="updates-list"></div>
+      </div>
+    </div>
     <button class="btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
     <button class="btn" onclick="openLegend()">ℹ</button>
     <button class="btn green" id="auth-btn" onclick="signIn()">🔑 Sign In</button>
@@ -1848,7 +1847,7 @@ function signOut() {
     if (overlay) overlay.style.display = 'none';
     renderStats();
     render();
-  }
+    setTimeout(() => { if(window._updateTableTop) window._updateTableTop(); }, 50);
 })();
 
 // ── UPDATE LOG — edit this array, newest first ───────────────────────────
@@ -1856,25 +1855,58 @@ const UPDATES = [
   { version: '1.2', text: 'Added view/subscriber growth tracking. Added white theme, fixed sorting bugs' },
   { version: '1.1', text: 'Added 150+ new creators and language tags for every channel.' },
 ];
-function initBanner() {
-  const textEl = document.getElementById('banner-text');
-  const expEl  = document.getElementById('banner-expanded');
-  const toggleBtn = document.getElementById('banner-toggle');
-  if (!textEl) return;
-  if (!UPDATES.length) { document.getElementById('update-banner').style.display='none'; return; }
-  textEl.innerHTML = `<strong style="color:var(--accent)">v${UPDATES[0].version}</strong> — ${UPDATES[0].text}`;
-  if (UPDATES.length <= 1) { if(toggleBtn) toggleBtn.style.display='none'; return; }
-  expEl.innerHTML = UPDATES.map(u=>`<div style="padding:5px 0;border-top:1px solid var(--border);font-family:var(--fm);font-size:10px;color:var(--muted)"><strong style="color:var(--accent)">v${u.version}</strong> — ${u.text}</div>`).join('');
+
+function initUpdatesBtn() {
+  const listEl = document.getElementById('updates-list');
+  const btn = document.getElementById('updates-btn');
+  if (!listEl) return;
+  if (!UPDATES.length) { if(btn) btn.style.display='none'; return; }
+  // Show latest version on the button
+  btn.innerHTML = `📋 v${UPDATES[0].version}`;
+  listEl.innerHTML = UPDATES.map(u =>
+    `<div class="update-entry"><strong style="color:var(--accent)">v${u.version}</strong> — ${u.text}</div>`
+  ).join('');
 }
-let _bannerOpen = false;
-function expandBanner() {
-  _bannerOpen = !_bannerOpen;
-  const b = document.getElementById('update-banner');
-  const e = document.getElementById('banner-expanded');
-  const t = document.getElementById('banner-toggle');
-  if (_bannerOpen) { b.style.maxHeight='300px'; e.style.display='block'; if(t) t.textContent='▲ less'; }
-  else             { b.style.maxHeight='38px';  e.style.display='none';  if(t) t.textContent='▼ more'; }
+
+let _updatesOpen = false;
+function toggleUpdates() {
+  _updatesOpen = !_updatesOpen;
+  const popup = document.getElementById('updates-popup');
+  if (_updatesOpen) {
+    popup.classList.add('open');
+    // Close when clicking outside
+    setTimeout(() => document.addEventListener('click', closeUpdatesOutside, { once: true }), 0);
+  } else {
+    popup.classList.remove('open');
+  }
 }
+function closeUpdatesOutside(e) {
+  const wrap = document.querySelector('.btn-updates-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    _updatesOpen = false;
+    document.getElementById('updates-popup').classList.remove('open');
+  }
+}
+
+// ── STICKY TABLE HEADER TOP ── calculate offset from all bars above table
+function updateTableTop() {
+  const nav = document.querySelector('.nav-header');
+  const statsRow = document.querySelector('.stats-row');
+  const controls = document.querySelector('.controls-bar');
+  const quickViews = document.querySelector('.quick-views');
+  const fetchBar = document.getElementById('fetch-bar');
+  let top = 0;
+  if (nav) top += nav.offsetHeight;
+  if (fetchBar && fetchBar.classList.contains('show')) top += fetchBar.offsetHeight;
+  if (statsRow) top += statsRow.offsetHeight;
+  if (controls) top += controls.offsetHeight;
+  if (quickViews) top += quickViews.offsetHeight;
+  document.documentElement.style.setProperty('--table-top', top + 'px');
+}
+// Run on load and on resize
+window.addEventListener('resize', updateTableTop);
+// Also expose for calling after render
+window._updateTableTop = updateTableTop;
 
 // ── THEME TOGGLE ──────────────────────────────────────────────────────────
 function toggleTheme() {
@@ -1892,7 +1924,9 @@ function toggleTheme() {
     }
   } catch(e) {}
 })();
-initBanner();
+initUpdatesBtn();
+// Delay to let DOM render and measure heights
+setTimeout(updateTableTop, 100);
 
 
 // ── QUICK VIEWS ───────────────────────────────────────────
