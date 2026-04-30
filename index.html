@@ -91,17 +91,19 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 }
 .nav-logo {
   display: flex; align-items: center; gap: 10px;
-  font-family: var(--fh); font-size: 1.1rem; font-weight: 700;
-  color: var(--text); text-decoration: none; margin-right: 2rem;
-  flex-shrink: 0;
+  font-family: var(--fh); font-size: 1.05rem; font-weight: 700;
+  color: var(--text); text-decoration: none; margin-right: 1.5rem;
+  flex-shrink: 0; letter-spacing: .01em;
 }
-.nav-logo em { color: var(--accent); font-style: normal; }
-.nav-logo span { color: var(--muted); }
+.nav-logo-word { color: var(--text); }
+.nav-logo-word.yt { color: var(--accent); }
+.nav-logo-word.tr { color: var(--muted); font-weight: 500; }
 .nav-logo-icon {
-  width: 30px; height: 30px; border-radius: 8px;
+  width: 28px; height: 28px; border-radius: 7px;
   background: linear-gradient(135deg, var(--accent), var(--green));
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0;
+  font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+  font-family: var(--fh);
 }
 .nav-spacer { flex: 1; }
 .nav-right { display: flex; align-items: center; gap: 8px; }
@@ -154,16 +156,14 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 
 /* ── STATS CARDS ── */
 .stats-row {
-  display: flex; gap: 10px; padding: 10px 1.5rem;
+  display: flex; gap: 12px; padding: 16px 1.5rem;
   background: var(--bg2); border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
-.stat-header-row { display: flex; align-items: center; gap: 6px; }
 .stat-card {
   background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: var(--radius); padding: 10px 14px;
-  min-width: 140px; flex: 1; position: relative; overflow: hidden;
-  display: flex; flex-direction: column; gap: 2px;
+  border-radius: var(--radius); padding: 14px 18px;
+  min-width: 150px; flex: 1; position: relative; overflow: hidden;
 }
 .stat-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -175,34 +175,20 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 .stat-card.c5::before { background: linear-gradient(90deg, #f87171, #fca5a5); }
 .stat-card.c6::before { background: linear-gradient(90deg, #818cf8, #a5b4fc); }
 .stat-card.c7::before { background: linear-gradient(90deg, #fb923c, #fdba74); }
-.stat-fastest { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-.stat-fast-img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-
-/* ── CHANGELOG MODAL ── */
-#changelog-modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
-  z-index: 500; display: none; align-items: center; justify-content: center;
-}
-#changelog-modal.open { display: flex; }
-.changelog-box {
-  background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px;
-  padding: 1.5rem; width: 480px; max-width: 95vw; max-height: 80vh; overflow-y: auto;
-}
-.changelog-title { font-family: var(--fh); font-size: 1.1rem; font-weight: 700; letter-spacing: .06em; margin-bottom: 1rem; }
-.changelog-entry { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; line-height: 1.6; }
-.changelog-entry:last-child { border-bottom: none; }
-.cl-ver { font-family: var(--fm); font-size: 10px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
-.cl-text { color: var(--muted); }
-.stat-icon { font-size: 14px; opacity: .75; flex-shrink: 0; }
-.stat-lbl { font-family: var(--fh); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.stat-val { font-family: var(--fh); font-size: 1.3rem; font-weight: 700; color: var(--text); line-height: 1; }
-.stat-sub { font-family: var(--fm); font-size: 9px; color: var(--muted); margin-top: 2px; }
+.stat-fastest { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.stat-fast-img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.stat-fast-name { font-family: var(--fh); font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+.stat-fast-val { font-family: var(--fm); font-size: 9px; color: var(--muted); margin-top: 1px; }
+.stat-icon { font-size: 20px; margin-bottom: 6px; opacity: .8; }
+.stat-lbl { font-family: var(--fh); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.stat-val { font-family: var(--fh); font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1; }
+.stat-sub { font-family: var(--fm); font-size: 9px; color: var(--muted); margin-top: 4px; }
 
 /* ── CONTROLS BAR ── */
 .controls-bar {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 10px 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border);
-  position: sticky; top: 56px; z-index: 200; /* header=56px */
+  position: relative; z-index: 200;
 }
 .search-wrap { position: relative; flex: 1; min-width: 160px; max-width: 260px; }
 .search-wrap .si { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
@@ -228,6 +214,7 @@ select:focus { border-color: var(--accent); }
 .quick-views {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 8px 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border);
+  position: relative;
 }
 .qv-label { font-family: var(--fh); font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
 .qv-btn {
@@ -246,7 +233,7 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
   background: var(--bg); padding: 8px 12px; font-family: var(--fh);
   font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
   color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap;
-  position: sticky; top: calc(56px + 82px); z-index: 10; /* header + controls */
+  position: sticky; top: 56px; z-index: 10;
   border-bottom: 2px solid var(--border2);
 }
 .col-header.sorted { color: var(--accent); }
@@ -381,13 +368,23 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
   <div id="load-msg">Connecting to database…</div>
 </div>
 
-<!-- changelog modal trigger lives in header now -->
+<!-- UPDATE BANNER -->
+<div id="update-banner">
+  <div class="banner-inner">
+    <span class="banner-tag">UPDATES</span>
+    <span id="banner-text"></span>
+    <button id="banner-toggle" onclick="expandBanner()">▼ more</button>
+  </div>
+  <div id="banner-expanded"></div>
+</div>
 
 <!-- NAV HEADER -->
 <header class="nav-header">
   <div class="nav-logo">
     <div class="nav-logo-icon">GD</div>
-    Geometry Dash <em>&nbsp;YouTuber</em><span>&nbsp;Tracker</span>
+    <span class="nav-logo-word">Geometry Dash</span>
+    <span class="nav-logo-word yt">YouTuber</span>
+    <span class="nav-logo-word tr">Tracker</span>
   </div>
   <div class="nav-spacer"></div>
   <div class="nav-right">
@@ -395,7 +392,6 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
     <button class="btn green admin-only" onclick="startFetchAll()" id="fetch-btn">⟳ Fetch All Stats</button>
     <button class="btn admin-only" onclick="openManage()">⚙ Manage</button>
     <button class="btn primary admin-only" onclick="openAdd()">+ Add Creator</button>
-    <button class="btn" onclick="openChangelog()" title="Changelog" id="changelog-btn" style="font-family:var(--fm);font-size:10px;gap:5px">📋 v1.2</button>
     <button class="btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
     <button class="btn" onclick="openLegend()">ℹ</button>
     <button class="btn green" id="auth-btn" onclick="signIn()">🔑 Sign In</button>
@@ -425,42 +421,49 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
 <!-- STATS CARDS -->
 <div class="stats-row">
   <div class="stat-card c1">
-    <div class="stat-header-row"><span class="stat-icon">👥</span><span class="stat-lbl">Creators</span></div>
+    <div class="stat-icon">👥</div>
+    <div class="stat-lbl">Creators</div>
     <div class="stat-val" id="s-count">—</div>
     <div class="stat-sub">Tracked channels</div>
   </div>
   <div class="stat-card c2">
-    <div class="stat-header-row"><span class="stat-icon">📊</span><span class="stat-lbl">Total Subs</span></div>
+    <div class="stat-icon">📊</div>
+    <div class="stat-lbl">Total Subs</div>
     <div class="stat-val" id="s-subs">—</div>
     <div class="stat-sub">Across all creators</div>
   </div>
   <div class="stat-card c3">
-    <div class="stat-header-row"><span class="stat-icon">👁</span><span class="stat-lbl">Total Views</span></div>
+    <div class="stat-icon">👁</div>
+    <div class="stat-lbl">Total Views</div>
     <div class="stat-val" id="s-totalviews">—</div>
     <div class="stat-sub">All-time views</div>
   </div>
   <div class="stat-card c4">
-    <div class="stat-header-row"><span class="stat-icon">📤</span><span class="stat-lbl">Active / Uploading</span></div>
+    <div class="stat-icon">📤</div>
+    <div class="stat-lbl">Active / Uploading</div>
     <div class="stat-val" id="s-active">—</div>
     <div class="stat-sub" id="s-active-pct"></div>
   </div>
   <div class="stat-card c5">
-    <div class="stat-header-row"><span class="stat-icon">🛡</span><span class="stat-lbl">Data Coverage</span></div>
+    <div class="stat-icon">🛡</div>
+    <div class="stat-lbl">Data Coverage</div>
     <div class="stat-val" id="s-cov">—</div>
     <div class="stat-sub" id="s-cov-pct"></div>
   </div>
   <div class="stat-card c6">
-    <div class="stat-header-row"><span class="stat-icon">🚀</span><span class="stat-lbl">Fastest Sub Growth</span></div>
-    <div class="stat-fastest" id="s-top-subs">
+    <div class="stat-icon">🚀</div>
+    <div class="stat-lbl">Fastest Sub Growth</div>
+    <div class="stat-fastest">
       <img class="stat-fast-img" id="s-top-subs-img" src="" alt="" style="display:none">
-      <div><div class="stat-val" id="s-top-subs-name" style="font-size:1rem">—</div><div class="stat-sub" id="s-top-subs-val"></div></div>
+      <div><div class="stat-fast-name" id="s-top-subs-name">—</div><div class="stat-fast-val" id="s-top-subs-val"></div></div>
     </div>
   </div>
   <div class="stat-card c7">
-    <div class="stat-header-row"><span class="stat-icon">📈</span><span class="stat-lbl">Fastest View Growth</span></div>
-    <div class="stat-fastest" id="s-top-views">
+    <div class="stat-icon">📈</div>
+    <div class="stat-lbl">Fastest View Growth</div>
+    <div class="stat-fastest">
       <img class="stat-fast-img" id="s-top-views-img" src="" alt="" style="display:none">
-      <div><div class="stat-val" id="s-top-views-name" style="font-size:1rem">—</div><div class="stat-sub" id="s-top-views-val"></div></div>
+      <div><div class="stat-fast-name" id="s-top-views-name">—</div><div class="stat-fast-val" id="s-top-views-val"></div></div>
     </div>
   </div>
 </div>
@@ -509,7 +512,7 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
   <button class="qv-btn" onclick="quickView('growth')">⚡ Fastest Growing</button>
   <button class="qv-btn" onclick="quickView('big')">🏆 Biggest Channels</button>
   <button class="qv-btn" onclick="quickView('shorts')">✂ Shorts Creators</button>
-  <button class="qv-btn" onclick="quickView('active')">🟢 Recently Active</button>
+  <button class="qv-btn" onclick="quickView('viewgrowth')">📈 Fastest View Growth</button>
   <div class="qv-right">
     <span class="showing-count" id="showing-count2"></span>
   </div>
@@ -1186,23 +1189,28 @@ function renderStats() {
   const covPctEl = document.getElementById('s-cov-pct');
   if (covPctEl) covPctEl.textContent = (n ? Math.round(cov/n*100) : 0) + '% with data';
 
-  // Fastest sub growth
-  const withSubG = creators.filter(c=>c.subGrowth!=null&&c.subGrowth>0);
-  if (withSubG.length) {
-    const top = withSubG.reduce((a,b)=>b.subGrowth>a.subGrowth?b:a);
-    document.getElementById('s-top-subs-name').textContent = top.name;
-    document.getElementById('s-top-subs-val').textContent = '+'+fmtN(top.subGrowth)+' subs / 30d';
+  // ── Fastest sub growth ──
+  const withSubG = creators.filter(c => c.subGrowth != null && c.subGrowth > 0);
+  const topSubEl = document.getElementById('s-top-subs-name');
+  if (withSubG.length && topSubEl) {
+    const top = withSubG.reduce((a,b) => b.subGrowth > a.subGrowth ? b : a);
+    topSubEl.textContent = top.name;
+    const v = document.getElementById('s-top-subs-val');
+    if (v) v.textContent = '+' + fmtN(top.subGrowth) + ' subs / 30d';
     const img = document.getElementById('s-top-subs-img');
-    if (img) { if(top.avatar){img.src=top.avatar;img.style.display='block';}else{img.style.display='none';} }
+    if (img) { if (top.avatar) { img.src = top.avatar; img.style.display = 'block'; } else { img.style.display = 'none'; } }
   }
-  // Fastest view growth
-  const withViewG = creators.filter(c=>c.viewGrowth!=null&&c.viewGrowth>0);
-  if (withViewG.length) {
-    const top2 = withViewG.reduce((a,b)=>b.viewGrowth>a.viewGrowth?b:a);
-    document.getElementById('s-top-views-name').textContent = top2.name;
-    document.getElementById('s-top-views-val').textContent = '+'+fmtN(top2.viewGrowth)+' views / 30d';
+
+  // ── Fastest view growth ──
+  const withViewG = creators.filter(c => c.viewGrowth != null && c.viewGrowth > 0);
+  const topViewEl = document.getElementById('s-top-views-name');
+  if (withViewG.length && topViewEl) {
+    const top2 = withViewG.reduce((a,b) => b.viewGrowth > a.viewGrowth ? b : a);
+    topViewEl.textContent = top2.name;
+    const v2 = document.getElementById('s-top-views-val');
+    if (v2) v2.textContent = '+' + fmtN(top2.viewGrowth) + ' views / 30d';
     const img2 = document.getElementById('s-top-views-img');
-    if (img2) { if(top2.avatar){img2.src=top2.avatar;img2.style.display='block';}else{img2.style.display='none';} }
+    if (img2) { if (top2.avatar) { img2.src = top2.avatar; img2.style.display = 'block'; } else { img2.style.display = 'none'; } }
   }
 }
 
@@ -1642,7 +1650,7 @@ async function deleteC() {
   stampUpdate();
 }
 document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget)closeModal(); });
-document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeManage();closeChangelog();} });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeManage();} });
 
 // ──────────────────────────────────────────────────────────
 // MANAGE / JSON
@@ -1729,11 +1737,11 @@ function parseDoc(doc) {
 // ── LOAD from Firestore REST (public read — no token needed) ──
 async function loadFromFirestore() {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000); // 8s max
-    const res = await fetch(FS_URL, { signal: controller.signal });
-    clearTimeout(timeout);
-    if (res.status === 404) return null;
+    const res = await fetch(FS_URL);
+    if (res.status === 404) {
+      // Document doesn't exist yet
+      return null;
+    }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const doc = await res.json();
     return parseDoc(doc);
@@ -1749,8 +1757,8 @@ function setAdminUI(owner) {
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = owner ? '' : 'none';
   });
-  // Re-render table so inline admin-only buttons (edit/fetch) update
-  if (typeof render === 'function') render();
+  // Re-render table so per-row edit buttons update
+  if (typeof render === 'function') try { render(); } catch(e) {}
   const btn = document.getElementById('auth-btn');
   if (!btn) return;
   if (owner) {
@@ -1863,23 +1871,30 @@ function signOut() {
   }
 })();
 
-// ── CHANGELOG — edit this array, newest first ───────────────────────────
+// ── UPDATE LOG — edit this array, newest first ───────────────────────────
 const UPDATES = [
-  { version: '1.3', text: 'Compact stats bar, fastest growing cards for subs & views, changelog modal, fixed header overlap.' },
-  { version: '1.2', text: 'Added view/subscriber growth tracking. Added white theme, fixed sorting bugs.' },
+  { version: '1.2', text: 'Added view/subscriber growth tracking. Added white theme, fixed sorting bugs' },
   { version: '1.1', text: 'Added 150+ new creators and language tags for every channel.' },
 ];
-function openChangelog() {
-  const el = document.getElementById('changelog-entries');
-  if (el) el.innerHTML = UPDATES.map(u=>`<div class="changelog-entry"><div class="cl-ver">v${u.version}</div><div class="cl-text">${u.text}</div></div>`).join('');
-  const _cm=document.getElementById('changelog-modal'); _cm.classList.add('open'); _cm.onclick=e=>{if(e.target===_cm)closeChangelog();};
+function initBanner() {
+  const textEl = document.getElementById('banner-text');
+  const expEl  = document.getElementById('banner-expanded');
+  const toggleBtn = document.getElementById('banner-toggle');
+  if (!textEl) return;
+  if (!UPDATES.length) { document.getElementById('update-banner').style.display='none'; return; }
+  textEl.innerHTML = `<strong style="color:var(--accent)">v${UPDATES[0].version}</strong> — ${UPDATES[0].text}`;
+  if (UPDATES.length <= 1) { if(toggleBtn) toggleBtn.style.display='none'; return; }
+  expEl.innerHTML = UPDATES.map(u=>`<div style="padding:5px 0;border-top:1px solid var(--border);font-family:var(--fm);font-size:10px;color:var(--muted)"><strong style="color:var(--accent)">v${u.version}</strong> — ${u.text}</div>`).join('');
 }
-function closeChangelog() {
-  document.getElementById('changelog-modal').classList.remove('open');
+let _bannerOpen = false;
+function expandBanner() {
+  _bannerOpen = !_bannerOpen;
+  const b = document.getElementById('update-banner');
+  const e = document.getElementById('banner-expanded');
+  const t = document.getElementById('banner-toggle');
+  if (_bannerOpen) { b.style.maxHeight='300px'; e.style.display='block'; if(t) t.textContent='▲ less'; }
+  else             { b.style.maxHeight='38px';  e.style.display='none';  if(t) t.textContent='▼ more'; }
 }
-// Update the version badge on the changelog button
-const _clBtn = document.getElementById('changelog-btn');
-if (_clBtn && UPDATES.length) _clBtn.innerHTML = '📋 v' + UPDATES[0].version;
 
 // ── THEME TOGGLE ──────────────────────────────────────────────────────────
 function toggleTheme() {
@@ -1897,7 +1912,7 @@ function toggleTheme() {
     }
   } catch(e) {}
 })();
-// changelog is on-demand now
+initBanner();
 
 
 // ── QUICK VIEWS ───────────────────────────────────────────
@@ -1911,7 +1926,7 @@ function quickView(type) {
   if (type === 'growth') { sortKey='subGrowth'; sortDir=-1; }
   else if (type === 'big') { sortKey='subscribers'; sortDir=-1; }
   else if (type === 'shorts') { document.getElementById('f-type').value='shorts'; }
-  else if (type === 'active') { document.getElementById('f-upload').value='yes'; }
+  else if (type === 'viewgrowth') { sortKey='viewGrowth'; sortDir=-1; }
   render();
 }
 
@@ -1921,16 +1936,5 @@ function closeLegend() { document.getElementById('legend-popup').classList.remov
 
 
 </script>
-<!-- CHANGELOG MODAL -->
-<div id="changelog-modal">
-  <div class="changelog-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div class="changelog-title">📋 Changelog</div>
-      <button onclick="closeChangelog()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button>
-    </div>
-    <div id="changelog-entries"></div>
-  </div>
-</div>
-
 </body>
 </html>
