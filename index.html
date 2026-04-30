@@ -90,20 +90,20 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
   padding: 0 1.5rem; height: 56px;
 }
 .nav-logo {
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--fh); font-size: 1.05rem; font-weight: 700;
-  color: var(--text); text-decoration: none; margin-right: 1.5rem;
-  flex-shrink: 0; letter-spacing: .01em;
+  display: flex; align-items: center; gap: 11px;
+  font-family: var(--fh); font-size: 1.15rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text); text-decoration: none; margin-right: 2rem;
+  flex-shrink: 0; line-height: 1;
 }
-.nav-logo-word { color: var(--text); }
-.nav-logo-word.yt { color: var(--accent); }
-.nav-logo-word.tr { color: var(--muted); font-weight: 500; }
+.nav-logo em { color: var(--accent); font-style: normal; }
+.nav-logo span { color: var(--muted); font-weight: 500; }
 .nav-logo-icon {
-  width: 28px; height: 28px; border-radius: 7px;
+  width: 30px; height: 30px; border-radius: 7px;
   background: linear-gradient(135deg, var(--accent), var(--green));
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
-  font-family: var(--fh);
+  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+  letter-spacing: 0;
 }
 .nav-spacer { flex: 1; }
 .nav-right { display: flex; align-items: center; gap: 8px; }
@@ -156,14 +156,14 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 
 /* ── STATS CARDS ── */
 .stats-row {
-  display: flex; gap: 12px; padding: 16px 1.5rem;
+  display: flex; gap: 8px; padding: 8px 1.5rem;
   background: var(--bg2); border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
 .stat-card {
   background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: var(--radius); padding: 14px 18px;
-  min-width: 150px; flex: 1; position: relative; overflow: hidden;
+  border-radius: var(--radius); padding: 8px 14px 10px;
+  min-width: 120px; flex: 1; position: relative; overflow: hidden;
 }
 .stat-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -175,20 +175,20 @@ body.light-theme .nav-header { background: rgba(240,243,250,.97); }
 .stat-card.c5::before { background: linear-gradient(90deg, #f87171, #fca5a5); }
 .stat-card.c6::before { background: linear-gradient(90deg, #818cf8, #a5b4fc); }
 .stat-card.c7::before { background: linear-gradient(90deg, #fb923c, #fdba74); }
-.stat-fastest { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
-.stat-fast-img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.stat-fast-name { font-family: var(--fh); font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.2; }
-.stat-fast-val { font-family: var(--fm); font-size: 9px; color: var(--muted); margin-top: 1px; }
-.stat-icon { font-size: 20px; margin-bottom: 6px; opacity: .8; }
-.stat-lbl { font-family: var(--fh); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.stat-val { font-family: var(--fh); font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1; }
-.stat-sub { font-family: var(--fm); font-size: 9px; color: var(--muted); margin-top: 4px; }
+.stat-top { font-size: 12px; margin-bottom: 3px; }
+.stat-fastest { display: flex; align-items: center; gap: 7px; margin-top: 4px; }
+.stat-fast-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.stat-fast-name { font-family: var(--fh); font-size: .9rem; font-weight: 700; color: var(--text); }
+.stat-icon { font-size: 13px; opacity: .7; display: inline; margin-right: 5px; }
+.stat-lbl { font-family: var(--fh); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: inline; }
+.stat-val { font-family: var(--fh); font-size: 1.25rem; font-weight: 700; color: var(--text); line-height: 1; margin-top: 4px; }
+.stat-sub { font-family: var(--fm); font-size: 9px; color: var(--muted); margin-top: 2px; }
 
 /* ── CONTROLS BAR ── */
 .controls-bar {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 10px 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border);
-  position: relative; z-index: 200;
+  position: relative; z-index: 1;
 }
 .search-wrap { position: relative; flex: 1; min-width: 160px; max-width: 260px; }
 .search-wrap .si { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
@@ -214,7 +214,6 @@ select:focus { border-color: var(--accent); }
 .quick-views {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 8px 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border);
-  position: relative;
 }
 .qv-label { font-family: var(--fh); font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
 .qv-btn {
@@ -382,9 +381,7 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
 <header class="nav-header">
   <div class="nav-logo">
     <div class="nav-logo-icon">GD</div>
-    <span class="nav-logo-word">Geometry Dash</span>
-    <span class="nav-logo-word yt">YouTuber</span>
-    <span class="nav-logo-word tr">Tracker</span>
+    Geometry Dash <em>YouTuber</em> <span>Tracker</span>
   </div>
   <div class="nav-spacer"></div>
   <div class="nav-right">
@@ -421,49 +418,42 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 3px; min-width
 <!-- STATS CARDS -->
 <div class="stats-row">
   <div class="stat-card c1">
-    <div class="stat-icon">👥</div>
-    <div class="stat-lbl">Creators</div>
+    <div class="stat-top">👥 <span class="stat-lbl">Creators</span></div>
     <div class="stat-val" id="s-count">—</div>
     <div class="stat-sub">Tracked channels</div>
   </div>
   <div class="stat-card c2">
-    <div class="stat-icon">📊</div>
-    <div class="stat-lbl">Total Subs</div>
+    <div class="stat-top">📊 <span class="stat-lbl">Total Subs</span></div>
     <div class="stat-val" id="s-subs">—</div>
     <div class="stat-sub">Across all creators</div>
   </div>
   <div class="stat-card c3">
-    <div class="stat-icon">👁</div>
-    <div class="stat-lbl">Total Views</div>
+    <div class="stat-top">👁 <span class="stat-lbl">Total Views</span></div>
     <div class="stat-val" id="s-totalviews">—</div>
     <div class="stat-sub">All-time views</div>
   </div>
   <div class="stat-card c4">
-    <div class="stat-icon">📤</div>
-    <div class="stat-lbl">Active / Uploading</div>
+    <div class="stat-top">📤 <span class="stat-lbl">Active / Uploading</span></div>
     <div class="stat-val" id="s-active">—</div>
     <div class="stat-sub" id="s-active-pct"></div>
   </div>
   <div class="stat-card c5">
-    <div class="stat-icon">🛡</div>
-    <div class="stat-lbl">Data Coverage</div>
+    <div class="stat-top">🛡 <span class="stat-lbl">Data Coverage</span></div>
     <div class="stat-val" id="s-cov">—</div>
     <div class="stat-sub" id="s-cov-pct"></div>
   </div>
   <div class="stat-card c6">
-    <div class="stat-icon">🚀</div>
-    <div class="stat-lbl">Fastest Sub Growth</div>
+    <div class="stat-top">🚀 <span class="stat-lbl">Fastest Sub Growth</span></div>
     <div class="stat-fastest">
       <img class="stat-fast-img" id="s-top-subs-img" src="" alt="" style="display:none">
-      <div><div class="stat-fast-name" id="s-top-subs-name">—</div><div class="stat-fast-val" id="s-top-subs-val"></div></div>
+      <div><div class="stat-fast-name" id="s-top-subs-name">—</div><div class="stat-sub" id="s-top-subs-val"></div></div>
     </div>
   </div>
   <div class="stat-card c7">
-    <div class="stat-icon">📈</div>
-    <div class="stat-lbl">Fastest View Growth</div>
+    <div class="stat-top">📈 <span class="stat-lbl">Fastest View Growth</span></div>
     <div class="stat-fastest">
       <img class="stat-fast-img" id="s-top-views-img" src="" alt="" style="display:none">
-      <div><div class="stat-fast-name" id="s-top-views-name">—</div><div class="stat-fast-val" id="s-top-views-val"></div></div>
+      <div><div class="stat-fast-name" id="s-top-views-name">—</div><div class="stat-sub" id="s-top-views-val"></div></div>
     </div>
   </div>
 </div>
@@ -1189,28 +1179,19 @@ function renderStats() {
   const covPctEl = document.getElementById('s-cov-pct');
   if (covPctEl) covPctEl.textContent = (n ? Math.round(cov/n*100) : 0) + '% with data';
 
-  // ── Fastest sub growth ──
   const withSubG = creators.filter(c => c.subGrowth != null && c.subGrowth > 0);
-  const topSubEl = document.getElementById('s-top-subs-name');
-  if (withSubG.length && topSubEl) {
+  if (withSubG.length) {
     const top = withSubG.reduce((a,b) => b.subGrowth > a.subGrowth ? b : a);
-    topSubEl.textContent = top.name;
-    const v = document.getElementById('s-top-subs-val');
-    if (v) v.textContent = '+' + fmtN(top.subGrowth) + ' subs / 30d';
-    const img = document.getElementById('s-top-subs-img');
-    if (img) { if (top.avatar) { img.src = top.avatar; img.style.display = 'block'; } else { img.style.display = 'none'; } }
+    const el = document.getElementById('s-top-subs-name'); if (el) el.textContent = top.name;
+    const ve = document.getElementById('s-top-subs-val'); if (ve) ve.textContent = '+' + fmtN(top.subGrowth) + ' subs / 30d';
+    const im = document.getElementById('s-top-subs-img'); if (im) { im.src = top.avatar||''; im.style.display = top.avatar ? 'block' : 'none'; }
   }
-
-  // ── Fastest view growth ──
   const withViewG = creators.filter(c => c.viewGrowth != null && c.viewGrowth > 0);
-  const topViewEl = document.getElementById('s-top-views-name');
-  if (withViewG.length && topViewEl) {
+  if (withViewG.length) {
     const top2 = withViewG.reduce((a,b) => b.viewGrowth > a.viewGrowth ? b : a);
-    topViewEl.textContent = top2.name;
-    const v2 = document.getElementById('s-top-views-val');
-    if (v2) v2.textContent = '+' + fmtN(top2.viewGrowth) + ' views / 30d';
-    const img2 = document.getElementById('s-top-views-img');
-    if (img2) { if (top2.avatar) { img2.src = top2.avatar; img2.style.display = 'block'; } else { img2.style.display = 'none'; } }
+    const el2 = document.getElementById('s-top-views-name'); if (el2) el2.textContent = top2.name;
+    const ve2 = document.getElementById('s-top-views-val'); if (ve2) ve2.textContent = '+' + fmtN(top2.viewGrowth) + ' views / 30d';
+    const im2 = document.getElementById('s-top-views-img'); if (im2) { im2.src = top2.avatar||''; im2.style.display = top2.avatar ? 'block' : 'none'; }
   }
 }
 
@@ -1757,8 +1738,7 @@ function setAdminUI(owner) {
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = owner ? '' : 'none';
   });
-  // Re-render table so per-row edit buttons update
-  if (typeof render === 'function') try { render(); } catch(e) {}
+  try { if (typeof render === 'function') render(); } catch(e) {}
   const btn = document.getElementById('auth-btn');
   if (!btn) return;
   if (owner) {
