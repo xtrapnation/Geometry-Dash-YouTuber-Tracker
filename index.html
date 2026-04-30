@@ -1648,7 +1648,7 @@ function closeLegend() {
 // ──────────────────────────────────────────────────────────
 // ── CONFIG ───────────────────────────────────────────────
 const PROJECT   = 'gd-yt-tracker';
-const CLIENT_ID = '6446315793-o0a7b0q8ik5hl6r5g5k5h5h5h5h5h5h.apps.googleusercontent.com';
+const CLIENT_ID = '435236222119-ngk4j1an812ell5cee5tcf1o7r97nf20.apps.googleusercontent.com';
 const OWNER_UIDS = ['101152331708242621748'];
 // Firestore REST base URL (public read, owner write)
 const FS_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/tracker/data`;
@@ -1761,58 +1761,61 @@ function signOut() {
   const overlay = document.getElementById('loading-overlay');
   const loadMsg = document.getElementById('load-msg');
 
-  // Try Firestore first
-  const data = await loadFromFirestore();
+  try {
+    // Try Firestore first
+    const data = await loadFromFirestore();
 
-  if (data && Array.isArray(data.creators) && data.creators.length > 0) {
-    const byName = {};
-    data.creators.forEach(c => { byName[c.name] = c; });
-    creators = buildDefaults().map(def => {
-      const saved = byName[def.name];
-      if (!saved) return def;
-      const merged = { ...def, ...saved, id: def.id };
-      // Treat empty string avatar as null
-      if (!merged.avatar) merged.avatar = null;
-      return merged;
-    });
-    // Also include any extra creators added beyond defaults
-    data.creators.forEach(c => { if (!creators.find(x => x.id === c.id)) creators.push(c); });
-    nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+    if (data && Array.isArray(data.creators) && data.creators.length > 0) {
+      const byName = {};
+      data.creators.forEach(c => { byName[c.name] = c; });
+      creators = buildDefaults().map(def => {
+        const saved = byName[def.name];
+        if (!saved) return def;
+        const merged = { ...def, ...saved, id: def.id };
+        if (!merged.avatar) merged.avatar = null;
+        return merged;
+      });
+      data.creators.forEach(c => { if (!creators.find(x => x.id === c.id)) creators.push(c); });
+      nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
 
-    if (data.updatedAt) {
-      lastUpdated = data.updatedAt;
-      const d = new Date(data.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const ago = timeAgo(data.updatedAt);
-      const el = document.getElementById('upd-display');
-      if (el) el.textContent = ago ? d + ' · ' + ago : d;
-    }
-    setSyncDot('synced');
-    // Mirror to localStorage
-    try { localStorage.setItem('gd-v2-local', JSON.stringify(creators)); } catch(e) {}
-  } else {
-    // Fall back to localStorage
-    try {
-      const local = localStorage.getItem('gd-v2-local');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const byName = {};
-          parsed.forEach(c => { byName[c.name] = c; });
-          creators = buildDefaults().map(def => {
-            const saved = byName[def.name];
-            return saved ? { ...def, ...saved, id: def.id } : def;
-          });
-          parsed.forEach(c => { if (!creators.find(x => x.id === c.id)) creators.push(c); });
-          nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
-          setSyncDot('local');
-        }
+      if (data.updatedAt) {
+        lastUpdated = data.updatedAt;
+        const d = new Date(data.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const ago = timeAgo(data.updatedAt);
+        const el = document.getElementById('upd-display');
+        if (el) el.textContent = ago ? d + ' · ' + ago : d;
       }
-    } catch(e) {}
+      setSyncDot('synced');
+      try { localStorage.setItem('gd-v2-local', JSON.stringify(creators)); } catch(e) {}
+    } else {
+      // Fall back to localStorage
+      try {
+        const local = localStorage.getItem('gd-v2-local');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const byName = {};
+            parsed.forEach(c => { byName[c.name] = c; });
+            creators = buildDefaults().map(def => {
+              const saved = byName[def.name];
+              return saved ? { ...def, ...saved, id: def.id } : def;
+            });
+            parsed.forEach(c => { if (!creators.find(x => x.id === c.id)) creators.push(c); });
+            nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
+            setSyncDot('local');
+          }
+        }
+      } catch(e) {}
+    }
+  } catch(e) {
+    console.error('Init error:', e);
+    if (loadMsg) loadMsg.textContent = 'Error: ' + e.message + ' — loading defaults.';
+  } finally {
+    // Always hide overlay no matter what
+    if (overlay) overlay.style.display = 'none';
+    renderStats();
+    render();
   }
-
-  if (overlay) overlay.style.display = 'none';
-  renderStats();
-  render();
 })();
 
 // ── UPDATE LOG — edit this array, newest first ───────────────────────────
