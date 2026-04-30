@@ -1297,7 +1297,7 @@ function render() {
       <td class="num-c" style="font-size:11px">${lang2}</td>
       <td class="upl-cell">
         <div class="upl-inner"><span class="dot ${c.uploading==='yes'?'d-yes':c.uploading==='rare'?'d-rare':'d-no'}"></span>${c.uploading==='yes'?'Yes':c.uploading==='rare'?'Rarely':'Stopped'}</div>
-        <div class="upl-btns"><button class="fetch-one-btn admin-only" data-id="${c.id}" onclick="fetchOne(${c.id})" title="Fetch stats" style="display:${isOwner?'':\'none\'}">⤓</button><button class="edit-btn admin-only" onclick="openEdit(${c.id})" style="display:${isOwner?'':\'none\'}">✎</button></div>
+        <div class="upl-btns"><button class="fetch-one-btn admin-only" data-id="${c.id}" onclick="fetchOne(${c.id})" title="Fetch stats">⤓</button><button class="edit-btn admin-only" onclick="openEdit(${c.id})">✎</button></div>
       </td>
     </tr>`;
   }).join('');
