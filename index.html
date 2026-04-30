@@ -1729,11 +1729,11 @@ function parseDoc(doc) {
 // ── LOAD from Firestore REST (public read — no token needed) ──
 async function loadFromFirestore() {
   try {
-    const res = await fetch(FS_URL);
-    if (res.status === 404) {
-      // Document doesn't exist yet
-      return null;
-    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8s max
+    const res = await fetch(FS_URL, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (res.status === 404) return null;
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const doc = await res.json();
     return parseDoc(doc);
