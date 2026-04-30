@@ -1881,48 +1881,6 @@ function quickView(type) {
 function openLegend() { document.getElementById('legend-popup').classList.add('open'); }
 function closeLegend() { document.getElementById('legend-popup').classList.remove('open'); }
 
-// ── THEME ─────────────────────────────────────────────────
-function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-theme');
-  document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀';
-  try { localStorage.setItem('gd-theme', isLight ? 'light' : 'dark'); } catch(e) {}
-}
-(function initTheme() {
-  try {
-    if (localStorage.getItem('gd-theme') === 'light') {
-      document.body.classList.add('light-theme');
-      const btn = document.getElementById('theme-btn');
-      if (btn) btn.textContent = '🌙';
-    }
-  } catch(e) {}
-})();
-
-// ── UPDATE BANNER ─────────────────────────────────────────
-// Edit this array to add entries — newest first
-const UPDATES = [
-  { version: '1.2', text: 'Added view/subscriber growth tracking. Added white theme.' },
-  { version: '1.1', text: 'Added 150+ new creators and language tags for every channel.' },
-];
-function initBanner() {
-  const textEl = document.getElementById('banner-text');
-  const expEl  = document.getElementById('banner-expanded');
-  const toggleBtn = document.getElementById('banner-toggle');
-  if (!textEl || !UPDATES.length) { document.getElementById('update-banner').style.display='none'; return; }
-  textEl.innerHTML = `<strong style="color:var(--accent)">v${UPDATES[0].version}</strong> — ${UPDATES[0].text}`;
-  if (UPDATES.length <= 1) { if(toggleBtn) toggleBtn.style.display='none'; return; }
-  expEl.innerHTML = UPDATES.map(u=>`<div style="padding:5px 0;border-top:1px solid var(--border);font-family:var(--fm);font-size:10px;color:var(--muted)"><strong style="color:var(--accent)">v${u.version}</strong> — ${u.text}</div>`).join('');
-}
-let _bannerOpen = false;
-function expandBanner() {
-  _bannerOpen = !_bannerOpen;
-  const b = document.getElementById('update-banner');
-  const e = document.getElementById('banner-expanded');
-  const t = document.getElementById('banner-toggle');
-  if (_bannerOpen) { b.style.maxHeight='300px'; e.style.display='block'; if(t) t.textContent='▲ less'; }
-  else             { b.style.maxHeight='36px';  e.style.display='none';  if(t) t.textContent='▼ more'; }
-}
-initBanner();
-
 
 </script>
 </body>
