@@ -1124,6 +1124,19 @@ function fmtN(n) {
   else s = a.toLocaleString();
   return (n < 0 ? '-' : '') + s;
 }
+// Subscriber-specific formatting with per-tier decimal rules
+function fmtSubs(n) {
+  if (n == null) return '—';
+  const a = Math.abs(n);
+  let s;
+  if (a >= 10e6)      s = (a/1e6).toFixed(1) + 'M';         // 10M+   → 1 decimal  e.g. 13.9M
+  else if (a >= 1e6)  s = (a/1e6).toFixed(2) + 'M';         // 1–10M  → 2 decimals e.g. 7.50M
+  else if (a >= 1e5)  s = Math.round(a/1e3) + 'K';          // 100K–1M→ no decimals e.g. 631K
+  else if (a >= 1e4)  s = (a/1e3).toFixed(1) + 'K';         // 10–100K→ 1 decimal  e.g. 13.4K
+  else if (a >= 1e3)  s = (a/1e3).toFixed(2) + 'K';         // 1–10K  → 2 decimals e.g. 4.56K
+  else                s = a.toLocaleString();
+  return (n < 0 ? '-' : '') + s;
+}
 function fmtG(n) {
   if (n == null) return '—';
   return (n >= 0 ? '+' : '-') + fmtN(Math.abs(n));
@@ -1278,7 +1291,7 @@ function render() {
       <td class="stripe-cell"><div class="type-stripe ${sc}" style="min-height:52px"></div></td>
       <td class="rank-cell">${rank}</td>
       <td class="name-cell"><div class="name-wrap">${avatarHtml}<div class="ch-name-group"><a class="name-link" href="${c.url||'#'}" target="_blank" rel="noopener">${c.name}</a><div class="name-tags">${tt}${lang}${curator}</div></div></div></td>
-      <td class="num-c ${c.subscribers==null?'muted':''}">${c.subscribers!=null?fmtN(c.subscribers):'—'}</td>
+      <td class="num-c ${c.subscribers==null?'muted':''}">${c.subscribers!=null?fmtSubs(c.subscribers):'—'}</td>
       <td class="num-c ${c.totalViews==null?'muted':''}">${c.totalViews!=null?fmtN(c.totalViews):'—'}</td>
       <td class="growth-cell">${growthHtml}</td>
       <td class="growth-cell">${viewGrowthHtml}</td>
@@ -1451,7 +1464,7 @@ function flashRow(creatorId) {
     const btn = row.querySelector('.edit-btn');
     if (btn && btn.getAttribute('onclick') === `openEdit(${c.id})`) {
       const cells = row.querySelectorAll('td');
-      if (cells[3]) { cells[3].textContent = c.subscribers != null ? fmtN(c.subscribers) : '—'; cells[3].className = 'num-c' + (c.subscribers==null?' muted':''); }
+      if (cells[3]) { cells[3].textContent = c.subscribers != null ? fmtSubs(c.subscribers) : '—'; cells[3].className = 'num-c' + (c.subscribers==null?' muted':''); }
       if (cells[4]) { cells[4].textContent = c.totalViews  != null ? fmtN(c.totalViews)  : '—'; cells[4].className = 'num-c' + (c.totalViews==null?' muted':''); }
       if (cells[5]) cells[5].innerHTML = `<span class="gpill ${gc(fmtDelta(c))}">${fmtG(fmtDelta(c))}</span>`;
       if (cells[6]) { cells[6].textContent = c.views30 != null ? fmtN(c.views30) : '—'; cells[6].className = 'num-c' + (c.views30==null?' muted':''); }
@@ -1848,6 +1861,7 @@ function signOut() {
     renderStats();
     render();
     setTimeout(() => { if(window._updateTableTop) window._updateTableTop(); }, 50);
+  }
 })();
 
 // ── UPDATE LOG — edit this array, newest first ───────────────────────────
