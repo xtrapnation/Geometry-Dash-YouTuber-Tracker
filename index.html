@@ -565,37 +565,23 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 }
 
   /* top nav stays first */
-.nav-header{
+.nav-header {
   position: sticky;
   top: 0;
   z-index: 500;
 }
 
-/* stats row under nav */
-.stats-row{
+/* stats/controls/quickviews are wrapped in #sticky-top which sticks as one unit */
+.stats-row    { position: static; }
+.controls-bar { position: static; }
+.quick-views  { position: static; }
+
+/* col-header sticks to top of viewport — stays above rows always */
+.col-header {
   position: sticky;
-  top: 60px;
-  z-index: 490;
-}
-
-/* sorting/filter row under stats */
-.controls-bar{
-  position: sticky !important;
-  top: 132px;   /* adjust if stats row height changes */
-  z-index: 480;
-  background: rgba(12,14,23,.96);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
-}
-
-/* quick views directly under sorting row */
-.quick-views{
-  position: sticky !important;
-  top: 182px;   /* controls row height added */
-  z-index: 470;
-  background: rgba(12,14,23,.96);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
+  top: 0;
+  z-index: 10;
+  background: var(--bg2);
 }
 
 /* make column headers stay under both bars */
@@ -690,6 +676,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 </div>
 
 <!-- STATS CARDS -->
+<div id="sticky-top" style="position:sticky;top:60px;z-index:400;background:var(--bg2)">
 <div class="stats-row">
   <div class="stat-card c1">
     <div class="stat-top"><span class="stat-icon">👥</span> <span class="stat-lbl">Creators</span></div>
@@ -791,6 +778,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
     <span class="showing-count" id="showing-count2"></span>
   </div>
 </div>
+</div><!-- /sticky-top -->
 
 <!-- TABLE -->
 <div class="table-outer">
@@ -2247,24 +2235,7 @@ function updateTableTop() {
   const fetchBar = document.getElementById('fetch-bar');
   let top = 0;
   if (nav) top += nav.offsetHeight;
-  if (fetchBar && fetchBar.classList.contains('show')) top += fetchBar.offsetHeight;
-  if (statsRow) top += statsRow.offsetHeight;
-  if (controls) top += controls.offsetHeight;
-  if (quickViews) top += quickViews.offsetHeight;
-  document.documentElement.style.setProperty('--table-top', top + 'px');
-  // Also update sticky positions dynamically
-  const navH = nav ? nav.offsetHeight : 60;
-  const statsH = statsRow ? statsRow.offsetHeight : 0;
-  const ctrlH = controls ? controls.offsetHeight : 0;
-  if (controls) controls.style.top = navH + 'px';
-  if (quickViews) quickViews.style.top = (navH + ctrlH + statsH) + 'px';
-  // Update sticky col-header top
-  document.querySelectorAll('.col-header').forEach(th => th.style.top = top + 'px');
-}
-// Run on load and on resize
-window.addEventListener('resize', updateTableTop);
-// Also expose for calling after render
-window._updateTableTop = updateTableTop;
+// sticky positions handled purely by CSS via #sticky-top wrapper
 
 // ── THEME TOGGLE ──────────────────────────────────────────────────────────
 function toggleTheme() {
