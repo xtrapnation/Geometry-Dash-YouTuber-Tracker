@@ -457,6 +457,92 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   background: rgba(46,232,165,.13); color: var(--green); border: 1px solid rgba(46,232,165,.3);
   letter-spacing: .06em; font-weight: 700; text-transform: uppercase;
 }
+  ```css
+/* === HEADER BRANDING UPGRADE === */
+.nav-logo {
+  font-weight: 900;
+}
+
+.nav-logo em,
+.nav-title-word {
+  color: #ffffff !important;
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(255,255,255,0.15);
+}
+
+.nav-logo-icon {
+  background: linear-gradient(135deg, #facc15, #eab308);
+  box-shadow:
+    0 0 10px rgba(250,204,21,0.55),
+    0 0 22px rgba(250,204,21,0.35),
+    inset 0 0 8px rgba(255,255,255,0.18);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.nav-logo:hover .nav-logo-icon {
+  transform: translateY(-2px) scale(1.08) rotate(-6deg);
+  box-shadow:
+    0 0 16px rgba(250,204,21,0.8),
+    0 0 34px rgba(250,204,21,0.55),
+    0 8px 18px rgba(0,0,0,0.35);
+}
+
+/* === MOVE SORT BAR NEXT TO QUICK VIEWS === */
+.controls-bar {
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* hide old floating spacing nonsense humanity invented */
+.quick-views {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 1.75rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 60px;
+  z-index: 250;
+}
+
+/* move filters into quick views row */
+.quick-views + .table-outer,
+.quick-views + div,
+.quick-views + section {
+  margin-top: 0;
+}
+
+.controls-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 18px;
+}
+
+/* lock sorting controls visually beside quick views */
+.quick-views .controls-bar,
+.quick-views > .controls-bar {
+  position: static !important;
+}
+
+/* nicer compact controls */
+.controls-bar select,
+.controls-bar .search-input {
+  height: 34px;
+}
+
+.ctrl-right {
+  margin-left: 0;
+}
+```
+
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
