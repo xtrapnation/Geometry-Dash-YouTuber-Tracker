@@ -519,7 +519,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   flex-wrap: wrap;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
-  padding: 10px 1.75rem;
+  padding: 8px 1.5rem;
   margin-left: 0;
   position: static;
 }
@@ -754,14 +754,6 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   </div>
 </div>
 
-<!-- QUICK VIEWS -->
-<div class="quick-views">
-  <span class="qv-label">Quick views:</span>
-  <button class="qv-btn" onclick="quickView('growth')">⚡ Fastest Growing</button>
-  <button class="qv-btn" onclick="quickView('big')">🏆 Biggest Channels</button>
-  <button class="qv-btn" onclick="quickView('shorts')">✂ Shorts Creators</button>
-  <button class="qv-btn" onclick="quickView('viewgrowth')">📈 Fastest View Growth</button>
-</div>
 <!-- COLUMN HEADERS (part of sticky block) -->
 <div style="background:var(--bg2);border-bottom:2px solid var(--border2);overflow-x:auto;">
   <table style="width:100%;border-collapse:collapse;table-layout:auto;min-width:900px;">
@@ -2246,20 +2238,6 @@ initUpdatesBtn();
 setTimeout(updateTableTop, 100);
 
 
-// ── QUICK VIEWS ───────────────────────────────────────────
-function quickView(type) {
-  document.querySelectorAll('.qv-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  // Reset filters first
-  document.getElementById('f-type').value = '';
-  document.getElementById('f-upload').value = '';
-  document.getElementById('f-growth').value = '';
-  if (type === 'growth') { sortKey='subGrowth'; sortDir=-1; }
-  else if (type === 'big') { sortKey='subscribers'; sortDir=-1; }
-  else if (type === 'shorts') { document.getElementById('f-type').value='shorts'; }
-  else if (type === 'viewgrowth') { sortKey='viewGrowth'; sortDir=-1; }
-  render();
-}
 
 // ── LEGEND ────────────────────────────────────────────────
 function openLegend() { document.getElementById('legend-popup').classList.add('open'); }
