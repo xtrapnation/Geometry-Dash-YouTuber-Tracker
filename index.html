@@ -756,7 +756,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
     <option value="good">25K+ subs</option>
     <option value="neg">Negative</option>
   </select>
-  <div class="ctrl-right" style="margin-left:auto">
+  <div class="ctrl-right">
     <button class="btn" onclick="resetFilters()">✕ Clear</button>
     <button class="btn" onclick="openLegend()">ℹ Legend</button>
   </div>
@@ -772,49 +772,23 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 </div>
 </div><!-- /sticky-top -->
 
-<!-- COL HEADERS — sticky, always above list -->
-<div id="col-header-bar" style="background:var(--bg);border-bottom:2px solid var(--border2);overflow:hidden;">
-  <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-    <colgroup>
-      <col style="width:3px">
-      <col style="width:44px">
-      <col><!-- channel -->
-      <col style="width:140px"><!-- subs -->
-      <col style="width:140px"><!-- views -->
-      <col style="width:140px"><!-- sub growth -->
-      <col style="width:140px"><!-- view growth -->
-      <col style="width:90px"><!-- lang -->
-      <col style="width:120px"><!-- uploading -->
-    </colgroup>
-    <thead><tr>
-      <th class="col-header" style="width:3px;padding:0;cursor:default;border:none"></th>
-      <th class="col-header" style="text-align:center;border:none" onclick="sortBy('rank')">#<span class="sa">↕</span></th>
-      <th class="col-header" style="border:none" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
-      <th class="col-header" style="text-align:center;border:none" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
-      <th class="col-header" style="text-align:center;border:none" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
-      <th class="col-header" style="text-align:center;border:none" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth<span class="sa">↕</span></th>
-      <th class="col-header" style="text-align:center;border:none" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth<span class="sa">↕</span></th>
-      <th class="col-header" style="text-align:center;border:none">Language</th>
-      <th class="col-header" style="text-align:center;border:none" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
-    </tr></thead>
-  </table>
-</div>
-
 <!-- TABLE -->
 <div class="table-outer">
 <div class="table-wrap" id="table-wrap">
-  <table id="tbl" style="table-layout:fixed;width:100%">
-    <colgroup>
-      <col style="width:3px">
-      <col style="width:44px">
-      <col>
-      <col style="width:140px">
-      <col style="width:140px">
-      <col style="width:140px">
-      <col style="width:140px">
-      <col style="width:90px">
-      <col style="width:120px">
-    </colgroup>
+  <table id="tbl">
+    <thead id="tbl-head">
+      <tr>
+        <th class="col-header" style="width:3px;padding:0;cursor:default"></th>
+        <th class="col-header" style="width:44px;text-align:center" onclick="sortBy('rank')">#<span class="sa">↕</span></th>
+        <th class="col-header" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center">Language</th>
+        <th class="col-header" style="text-align:center" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
+      </tr>
+    </thead>
     <tbody id="tbody"></tbody>
   </table>
   <div class="empty" id="empty" style="display:none">
@@ -1594,6 +1568,7 @@ function render() {
   if (!data.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
 
+  updateTableTop && setTimeout(updateTableTop, 50);
   tbody.innerHTML = data.map((c,i) => {
     const rank = i+1;
     const sc = c.type==='shorts' ? 'stripe-shorts' : 'stripe-regular';
@@ -2252,7 +2227,17 @@ function updateTableTop() {
   const quickViews = document.querySelector('.quick-views');
   const fetchBar = document.getElementById('fetch-bar');
   let top = 0;
-// sticky positions handled purely by CSS via #sticky-top wrapper
+  // Measure #sticky-top height and set thead th top accordingly
+  const stickyTop = document.getElementById('sticky-top');
+  if (stickyTop) {
+    const navH = 60; // nav-header height
+    const offset = navH + stickyTop.offsetHeight;
+    document.querySelectorAll('.col-header').forEach(th => {
+      th.style.position = 'sticky';
+      th.style.top = offset + 'px';
+      th.style.zIndex = '10';
+    });
+  }
 }
 
 // ── THEME TOGGLE ──────────────────────────────────────────────────────────
