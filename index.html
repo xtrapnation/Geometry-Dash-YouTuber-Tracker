@@ -487,14 +487,13 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
     0 8px 18px rgba(0,0,0,0.35);
 }
 
-/* === MOVE SORT BAR NEXT TO QUICK VIEWS === */
+/* === LAYOUT FIXED VIA #sticky-top WRAPPER === */
 .controls-bar {
   padding-top: 0;
   padding-bottom: 0;
   border-bottom: none;
 }
 
-/* hide old floating spacing nonsense humanity invented */
 .quick-views {
   display: flex;
   align-items: center;
@@ -503,9 +502,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   padding: 10px 1.75rem;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 60px;
-  z-index: 250;
+  position: static;
 }
 
 /* move filters into quick views row */
@@ -516,14 +513,15 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 }
 
 .controls-bar {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin-left: 18px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 1.75rem;
+  margin-left: 0;
+  position: static;
 }
 
 /* lock sorting controls visually beside quick views */
@@ -577,13 +575,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 
 .col-header {
   position: static;
-  background: transparent;
-}
-
-/* make column headers stay under both bars */
-.col-header{
-  top: 228px !important;
-  z-index: 460;
+  background: var(--bg2);
 }
 
 /* restore clear + legend to right side */
@@ -723,7 +715,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
       </div>
     </div>
   </div>
-</div>
+</div><!-- /stats-row -->
 
 <!-- CONTROLS -->
 <div class="controls-bar">
@@ -770,25 +762,28 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   <button class="qv-btn" onclick="quickView('shorts')">✂ Shorts Creators</button>
   <button class="qv-btn" onclick="quickView('viewgrowth')">📈 Fastest View Growth</button>
 </div>
+<!-- COLUMN HEADERS (part of sticky block) -->
+<div style="background:var(--bg2);border-bottom:2px solid var(--border2);overflow-x:auto;">
+  <table style="width:100%;border-collapse:collapse;table-layout:auto;min-width:900px;">
+    <thead id="tbl-head"><tr>
+      <th class="col-header" style="width:3px;padding:0;cursor:default;position:static;border:none;background:var(--bg2)"></th>
+      <th class="col-header" style="width:44px;text-align:center;position:static;border:none;background:var(--bg2)" onclick="sortBy('rank')">#<span class="sa">↕</span></th>
+      <th class="col-header" style="position:static;border:none;background:var(--bg2)" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
+      <th class="col-header" style="text-align:center;position:static;border:none;background:var(--bg2)" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
+      <th class="col-header" style="text-align:center;position:static;border:none;background:var(--bg2)" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
+      <th class="col-header" style="text-align:center;position:static;border:none;background:var(--bg2)" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth<span class="sa">↕</span></th>
+      <th class="col-header" style="text-align:center;position:static;border:none;background:var(--bg2)" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth<span class="sa">↕</span></th>
+      <th class="col-header" style="text-align:center;position:static;border:none;background:var(--bg2)">Language</th>
+      <th class="col-header" style="text-align:center;position:static;border:none;background:var(--bg2)" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
+    </tr></thead>
+  </table>
+</div>
 </div><!-- /sticky-top -->
 
 <!-- TABLE -->
 <div class="table-outer">
 <div class="table-wrap" id="table-wrap">
   <table id="tbl">
-    <thead id="tbl-head">
-      <tr>
-        <th class="col-header" style="width:3px;padding:0;cursor:default"></th>
-        <th class="col-header" style="width:44px;text-align:center" onclick="sortBy('rank')">#<span class="sa">↕</span></th>
-        <th class="col-header" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center">Language</th>
-        <th class="col-header" style="text-align:center" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
-      </tr>
-    </thead>
     <tbody id="tbody"></tbody>
   </table>
   <div class="empty" id="empty" style="display:none">
@@ -2227,17 +2222,7 @@ function updateTableTop() {
   const quickViews = document.querySelector('.quick-views');
   const fetchBar = document.getElementById('fetch-bar');
   let top = 0;
-  // Measure #sticky-top height and set thead th top accordingly
-  const stickyTop = document.getElementById('sticky-top');
-  if (stickyTop) {
-    const navH = 60; // nav-header height
-    const offset = navH + stickyTop.offsetHeight;
-    document.querySelectorAll('.col-header').forEach(th => {
-      th.style.position = 'sticky';
-      th.style.top = offset + 'px';
-      th.style.zIndex = '10';
-    });
-  }
+  // col-header is now part of #sticky-top, no JS needed
 }
 
 // ── THEME TOGGLE ──────────────────────────────────────────────────────────
