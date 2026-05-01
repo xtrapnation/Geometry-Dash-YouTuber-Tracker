@@ -335,8 +335,8 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 4px; min-width
 .type-stripe { width: 4px; height: 100%; min-height: var(--row-h); }
 .stripe-shorts { background: linear-gradient(180deg, #f43f5e, #e11d48); }
 .stripe-regular { background: linear-gradient(180deg, #5b9bff, #3b82f6); }
-.rank-cell { text-align: left; padding: 14px 8px 14px 16px; font-family: var(--fm); font-size: 12px; color: var(--muted); font-weight: 500; }
-.name-cell { padding: 10px 16px 10px 8px; min-width: 200px; }
+.rank-cell { text-align: center; padding: 14px 8px; font-family: var(--fm); font-size: 12px; color: var(--muted); font-weight: 500; }
+.name-cell { padding: 10px 16px; min-width: 200px; }
 .name-wrap { display: flex; align-items: center; gap: 12px; }
 .ch-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg5); border: 2px solid var(--border2); transition: transform 0.2s; }
 .ch-avatar-placeholder { width: 42px; height: 42px; border-radius: 50%; background: var(--bg5); flex-shrink: 0; border: 2px solid var(--border2); }
@@ -813,8 +813,8 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
     <thead id="tbl-head" style="position:sticky;top:0;z-index:50;">
       <tr>
         <th class="col-header" style="padding:0;cursor:default;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);"></th>
-        <th class="col-header" style="text-align:left;padding-left:16px;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('rank')">#<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:left;padding-left:8px;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('rank')">#<span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:left;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth<span class="sa">↕</span> <span class="growth-warn"><span class="growth-warn-icon">!</span><span class="growth-warn-tip">Data may be delayed — tracking only started <span class="warn-days"></span>. Figures will be more accurate after 30 days.<span class="growth-warn-since">Started tracking: Apr 30, 2026</span></span></span></th>
