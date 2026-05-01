@@ -563,6 +563,73 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   .nav-logo span { display: none; }
   select { font-size: 11px; padding: 7px 24px 7px 9px; }
 }
+
+  /* top nav stays first */
+.nav-header{
+  position: sticky;
+  top: 0;
+  z-index: 500;
+}
+
+/* stats row under nav */
+.stats-row{
+  position: sticky;
+  top: 60px;
+  z-index: 490;
+}
+
+/* sorting/filter row under stats */
+.controls-bar{
+  position: sticky !important;
+  top: 132px;   /* adjust if stats row height changes */
+  z-index: 480;
+  background: rgba(12,14,23,.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* quick views directly under sorting row */
+.quick-views{
+  position: sticky !important;
+  top: 182px;   /* controls row height added */
+  z-index: 470;
+  background: rgba(12,14,23,.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* make column headers stay under both bars */
+.col-header{
+  top: 228px !important;
+  z-index: 460;
+}
+
+/* restore clear + legend to right side */
+.qv-right{
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctrl-right{
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* prevent bars from covering content */
+.table-outer{
+  padding-top: 0;
+}
+
+/* tiny polish */
+.controls-bar,
+.quick-views{
+  box-shadow: 0 6px 18px rgba(0,0,0,.22);
+}
+  
 </style>
 </head>
 <body>
