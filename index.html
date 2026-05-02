@@ -367,39 +367,14 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 4px; min-width
 .gneg  { background: rgba(251,113,133,.13); color: var(--g-neg);   border: 1px solid rgba(251,113,133,.28); }
 .growth-age { opacity: .55; font-size: 9px; font-weight: 400; }
 
-/* ── GROWTH WARNING TOOLTIP ── */
-.growth-warn {
-  display: inline-flex; align-items: center; gap: 3px;
-  cursor: help; position: relative;
-  color: #f59e0b; font-size: 10px; margin-left: 4px;
-  vertical-align: middle;
-}
-.growth-warn-icon {
+/* ── 24H FRESHNESS BADGE ── */
+.badge-24h {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: rgba(245,158,11,0.18); border: 1px solid rgba(245,158,11,0.4);
-  font-size: 9px; font-weight: 900; line-height: 1; color: #f59e0b;
-  flex-shrink: 0; font-family: var(--fh);
-  padding-bottom: 1px; /* optical centering for ! glyph */
-}
-.growth-warn-tip {
-  display: none; position: absolute; top: calc(100% + 8px); left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg5); border: 1px solid rgba(245,158,11,0.35);
-  border-radius: 8px; padding: 9px 12px; min-width: 220px; max-width: 260px;
-  font-family: var(--fh); font-size: 11px; font-weight: 500;
-  color: var(--text2); line-height: 1.5; white-space: normal;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.5); z-index: 9999; text-align: left;
-  pointer-events: none; text-transform: none; letter-spacing: normal;
-}
-.growth-warn:hover .growth-warn-tip { display: block; }
-
-.growth-warn-since {
-  display: inline-block; margin-top: 5px;
-  font-family: var(--fm); font-size: 9.5px;
-  color: #f59e0b; background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.25); border-radius: 4px;
-  padding: 1px 6px;
+  padding: 1px 5px; border-radius: 4px; font-size: 8px; font-weight: 700;
+  font-family: var(--fh); letter-spacing: .05em; margin-left: 5px;
+  background: rgba(91,155,255,.15); color: var(--accent);
+  border: 1px solid rgba(91,155,255,.3); vertical-align: middle;
+  flex-shrink: 0; line-height: 1.4;
 }
 .upl-cell { padding: 10px 16px; white-space: nowrap; }
 .upl-inner { display: flex; align-items: center; gap: 7px; justify-content: center; font-size: 12.5px; font-family: var(--fh); font-weight: 600; }
@@ -735,7 +710,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
       <div class="stat-fast-info">
         <div class="stat-fast-name" id="s-top-subs-name">—</div>
         <div class="stat-fast-growth" id="s-top-subs-val"></div>
-        <div class="stat-fast-label">subs in 30 days</div>
+        <div class="stat-fast-label">subs in 24h</div>
       </div>
     </div>
   </div>
@@ -747,7 +722,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
       <div class="stat-fast-info">
         <div class="stat-fast-name" id="s-top-views-name">—</div>
         <div class="stat-fast-growth" id="s-top-views-val"></div>
-        <div class="stat-fast-label">views in 30 days</div>
+        <div class="stat-fast-label">views in 24h</div>
       </div>
     </div>
   </div>
@@ -817,8 +792,8 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
         <th class="col-header" style="text-align:left;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth<span class="sa">↕</span> <span class="growth-warn"><span class="growth-warn-icon">!</span><span class="growth-warn-tip">Data may be delayed — tracking only started <span class="warn-days"></span>. Figures will be more accurate after 30 days.<span class="growth-warn-since">Started tracking: Apr 30, 2026</span></span></span></th>
-        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth<span class="sa">↕</span> <span class="growth-warn"><span class="growth-warn-icon">!</span><span class="growth-warn-tip">Data may be delayed — tracking only started <span class="warn-days"></span>. Figures will be more accurate after 30 days.<span class="growth-warn-since">Started tracking: Apr 30, 2026</span></span></span></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em">(24H)</span><span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em">(24H)</span><span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);">Language</th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
       </tr>
@@ -1465,6 +1440,13 @@ function fmtDeltaAge(c) {
   if (days === 1) return '1d ago';
   return days + 'd ago';
 }
+function is24hFresh(c) {
+  if (!c.prevFetchedAt) return false;
+  return (Date.now() - c.prevFetchedAt) < 86400000;
+}
+function badge24h() {
+  return '<span class="badge-24h">24H</span>';
+}
 function gc(n) {
   if (n == null) return 'gn';
   if (n >= 200000) return 'gm';
@@ -1628,11 +1610,13 @@ function render() {
     const delta     = fmtDelta(c);
     const vdelta    = fmtViewDelta(c);
     const age       = fmtDeltaAge(c);
+    const fresh     = is24hFresh(c);
+    const b24       = fresh ? badge24h() : '';
     const growthHtml = delta != null
-      ? `<span class="gpill ${gc(delta)}">${fmtG(delta)}<span class="growth-age"> ${age}</span></span>`
+      ? `<span class="gpill ${gc(delta)}">${fmtG(delta)}<span class="growth-age"> ${age}</span></span>${b24}`
       : `<span class="gpill gn">—</span>`;
     const viewGrowthHtml = vdelta != null
-      ? `<span class="gpill ${gc(vdelta)}">${fmtG(vdelta)}<span class="growth-age"> ${age}</span></span>`
+      ? `<span class="gpill ${gc(vdelta)}">${fmtG(vdelta)}<span class="growth-age"> ${age}</span></span>${b24}`
       : `<span class="gpill gn">—</span>`;
     const curator = c.name.toLowerCase()==='xtrapnation'
       ? '<span class="curator-badge">Curator</span>'
