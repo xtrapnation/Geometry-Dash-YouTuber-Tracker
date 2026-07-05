@@ -710,7 +710,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
       <div class="stat-fast-info">
         <div class="stat-fast-name" id="s-top-subs-name">—</div>
         <div class="stat-fast-growth" id="s-top-subs-val"></div>
-        <div class="stat-fast-label">subs in 24h</div>
+        <div class="stat-fast-label" id="s-top-subs-label">subs in 24h</div>
       </div>
     </div>
   </div>
@@ -722,7 +722,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
       <div class="stat-fast-info">
         <div class="stat-fast-name" id="s-top-views-name">—</div>
         <div class="stat-fast-growth" id="s-top-views-val"></div>
-        <div class="stat-fast-label">views in 24h</div>
+        <div class="stat-fast-label" id="s-top-views-label">views in 24h</div>
       </div>
     </div>
   </div>
@@ -792,8 +792,8 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
         <th class="col-header" style="text-align:left;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em">(24H)</span><span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em">(24H)</span><span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em" id="th-subgrowth-window">(24H)</span><span class="sa">↕</span></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em" id="th-viewgrowth-window">(24H)</span><span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);">Language</th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
       </tr>
@@ -1436,16 +1436,26 @@ function fmtDeltaAge(c) {
   const days = Math.round(diff / 86400000);
   const hrs  = Math.round(diff / 3600000);
   if (hrs < 1)  return 'just now';
-  if (hrs < 24) return hrs + 'h ago';
-  if (days === 1) return '1d ago';
-  return days + 'd ago';
+  if (hrs < 24) return 'in ' + hrs + 'h';
+  if (days === 1) return 'in 1d';
+  return 'in ' + days + 'd';
+}
+function fmtDeltaWindow(c) {
+  // Short label for badges and stat card subtitles
+  if (!c.prevFetchedAt) return '24h';
+  const diff = Date.now() - c.prevFetchedAt;
+  const hrs  = diff / 3600000;
+  const days = diff / 86400000;
+  if (hrs < 36) return Math.max(1, Math.round(hrs)) + 'h';
+  return Math.round(days) + 'd';
 }
 function is24hFresh(c) {
   if (!c.prevFetchedAt) return false;
   return (Date.now() - c.prevFetchedAt) < 86400000;
 }
-function badge24h() {
-  return '<span class="badge-24h">24H</span>';
+function badge24h(c) {
+  const lbl = c ? fmtDeltaWindow(c).toUpperCase() : '24H';
+  return '<span class="badge-24h">' + lbl + '</span>';
 }
 function gc(n) {
   if (n == null) return 'gn';
@@ -1479,12 +1489,26 @@ function renderStats() {
   const covPctEl = document.getElementById('s-cov-pct');
   if (covPctEl) covPctEl.textContent = (n ? Math.round(cov/n*100) : 0) + '% with data';
 
+  // Update column header window labels based on median prevFetchedAt age
+  const withPrev = creators.filter(c => c.prevFetchedAt != null);
+  if (withPrev.length) {
+    const ages = withPrev.map(c => Date.now() - c.prevFetchedAt).sort((a,b)=>a-b);
+    const medianDiff = ages[Math.floor(ages.length / 2)];
+    const medianHrs = medianDiff / 3600000;
+    const windowLabel = medianHrs < 36
+      ? '(' + Math.max(1, Math.round(medianHrs)) + 'H)'
+      : '(' + Math.round(medianDiff / 86400000) + 'D)';
+    const sg = document.getElementById('th-subgrowth-window');  if (sg) sg.textContent = windowLabel;
+    const vg = document.getElementById('th-viewgrowth-window'); if (vg) vg.textContent = windowLabel;
+  }
+
   const withSubG = creators.filter(c => fmtDelta(c) != null);
   if (withSubG.length) {
     const top = withSubG.reduce((a,b) => (fmtDelta(b) > fmtDelta(a) ? b : a));
     const delta = fmtDelta(top);
     const el = document.getElementById('s-top-subs-name'); if (el) el.textContent = top.name;
     const ve = document.getElementById('s-top-subs-val'); if (ve) ve.textContent = fmtG(delta);
+    const sl = document.getElementById('s-top-subs-label'); if (sl) sl.textContent = 'subs in ' + fmtDeltaWindow(top);
     const im = document.getElementById('s-top-subs-img');
     const ph = document.getElementById('s-top-subs-placeholder');
     if (im && ph) {
@@ -1512,6 +1536,7 @@ function renderStats() {
     const vdelta = fmtViewDelta(top2);
     const el2 = document.getElementById('s-top-views-name'); if (el2) el2.textContent = top2.name;
     const ve2 = document.getElementById('s-top-views-val'); if (ve2) ve2.textContent = fmtG(vdelta);
+    const vl2 = document.getElementById('s-top-views-label'); if (vl2) vl2.textContent = 'views in ' + fmtDeltaWindow(top2);
     const im2 = document.getElementById('s-top-views-img');
     const ph2 = document.getElementById('s-top-views-placeholder');
     if (im2 && ph2) {
@@ -1611,7 +1636,7 @@ function render() {
     const vdelta    = fmtViewDelta(c);
     const age       = fmtDeltaAge(c);
     const fresh     = is24hFresh(c);
-    const b24       = fresh ? badge24h() : '';
+    const b24       = (delta != null || vdelta != null) ? badge24h(c) : '';
     const growthHtml = delta != null
       ? `<span class="gpill ${gc(delta)}">${fmtG(delta)}<span class="growth-age"> ${age}</span></span>${b24}`
       : `<span class="gpill gn">—</span>`;
