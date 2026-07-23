@@ -285,6 +285,40 @@ select:focus { border-color: var(--accent); background-color: var(--bg5); box-sh
 .ctrl-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .showing-count { font-family: var(--fm); font-size: 10.5px; color: var(--muted2); background: var(--bg4); padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); }
 
+/* ── MULTI-SELECT DROPDOWN (checkbox style) ── */
+.msel { position: relative; }
+.msel-btn {
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  padding: 8px 11px; background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--text2); font-family: var(--fh); font-size: 12.5px; font-weight: 500;
+  cursor: pointer; outline: none; transition: var(--transition);
+}
+.msel-btn:hover { border-color: var(--border3); }
+.msel.open .msel-btn { border-color: var(--accent); background: var(--bg5); box-shadow: 0 0 0 3px rgba(91,155,255,0.12); }
+.msel-caret { font-size: 9px; color: var(--muted2); transition: transform .15s ease; }
+.msel.open .msel-caret { transform: rotate(180deg); }
+.msel-label { max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.msel-panel {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; z-index: 60;
+  background: var(--bg4); border: 1px solid var(--border2); border-radius: 10px;
+  box-shadow: var(--shadow2); padding: 6px; max-height: 320px; overflow-y: auto;
+}
+.msel.open .msel-panel { display: block; }
+.msel-opt {
+  display: flex; align-items: center; gap: 9px; padding: 8px 9px; border-radius: 7px;
+  font-family: var(--fh); font-size: 12.5px; color: var(--text2); cursor: pointer; white-space: nowrap;
+  transition: background .12s ease;
+}
+.msel-opt:hover { background: var(--bg5); }
+.msel-check {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 15px; height: 15px; border-radius: 4px; border: 1px solid var(--border3);
+  font-size: 10px; line-height: 1; color: transparent; background: var(--bg3);
+  transition: var(--transition);
+}
+.msel-opt.checked { color: var(--text); background: rgba(91,155,255,0.10); }
+.msel-opt.checked .msel-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+
 /* ── QUICK VIEWS ── */
 .quick-views {
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
@@ -431,20 +465,12 @@ table { width: 100%; border-collapse: separate; border-spacing: 0 4px; min-width
 .progress-track { flex: 1; max-width: 220px; height: 4px; background: var(--bg5); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 2px; transition: width .4s ease; width: 0%; }
 
-/* ── NULLIFY WARNING TOAST ── */
-#nullify-toast {
-  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
-  display: flex; align-items: center; gap: 10px;
-  background: var(--bg4); border: 1px solid rgba(245,158,11,0.35); border-left: 3px solid #f59e0b;
-  border-radius: 10px; padding: 12px 18px; box-shadow: var(--shadow2);
-  font-family: var(--fh); font-size: 12.5px; color: var(--text2);
-  z-index: 900; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
-  max-width: 420px;
+/* ── NULLIFY WARNING (column header) ── */
+.col-warn {
+  display: none; margin-left: 5px; font-size: 11px; color: #f59e0b;
+  cursor: default; vertical-align: middle;
 }
-#nullify-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-#nullify-toast .nt-icon { font-size: 16px; flex-shrink: 0; }
-#nullify-toast .nt-close { margin-left: 4px; cursor: pointer; color: var(--muted2); font-family: var(--fm); font-size: 13px; flex-shrink: 0; }
-#nullify-toast .nt-close:hover { color: var(--text); }
+.col-warn.show { display: inline-block; }
 
 /* ── MANAGE PANEL ── */
 #manage-panel { display: none; padding: 1.75rem; background: var(--bg2); border-bottom: 1px solid var(--border2); }
@@ -570,7 +596,8 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 
 /* nicer compact controls */
 .controls-bar select,
-.controls-bar .search-input {
+.controls-bar .search-input,
+.controls-bar .msel-btn {
   height: 34px;
 }
 
@@ -597,6 +624,8 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 @media (max-width: 480px) {
   .nav-logo span { display: none; }
   select { font-size: 11px; padding: 7px 24px 7px 9px; }
+  .msel-btn { font-size: 11px; padding: 7px 9px; }
+  .msel-label { max-width: 90px; }
 }
 
   /* top nav stays first */
@@ -682,12 +711,6 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 </header>
 
 <!-- FETCH BAR -->
-<div id="nullify-toast">
-  <span class="nt-icon">⚠️</span>
-  <span id="nullify-toast-text">Growth data cleared — it'll be back once the next fetch runs in a few hours.</span>
-  <span class="nt-close" onclick="hideNullifyToast()">✕</span>
-</div>
-
 <div id="fetch-bar">
   <span id="fetch-status">Fetching…</span>
   <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
@@ -772,28 +795,35 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
     <option value="regular">Regular</option>
     <option value="shorts">Shorts</option>
   </select>
-  <select id="f-upload" onchange="render()">
-    <option value="">All Upload Status</option>
-    <option value="active-or-rare">Active or Rarely</option>
-    <option value="yes">Actively Uploading</option>
-    <option value="rare">Rarely</option>
-    <option value="no">Stopped</option>
-  </select>
-  <select id="f-lang" onchange="render()">
-    <option value="">All Languages</option>
-    <option value="en">English</option>
-    <option value="es">Spanish</option>
-    <option value="ru">Russian</option>
-    <option value="id">Indonesian</option>
-    <option value="pt">Portuguese</option>
-    <option value="vi">Vietnamese</option>
-    <option value="pl">Polish</option>
-    <option value="de">German</option>
-    <option value="ko">Korean</option>
-    <option value="ja">Japanese</option>
-    <option value="fi">Finnish</option>
-    <option value="other">Other</option>
-  </select>
+  <div class="msel" id="msel-upload">
+    <button type="button" class="msel-btn" onclick="mselToggleOpen('msel-upload')">
+      <span class="msel-label" id="msel-upload-label">All Upload Status</span><span class="msel-caret">▾</span>
+    </button>
+    <div class="msel-panel">
+      <div class="msel-opt" data-value="yes" onclick="mselToggleOption('upload','yes')"><span class="msel-check">✓</span>Actively Uploading</div>
+      <div class="msel-opt" data-value="rare" onclick="mselToggleOption('upload','rare')"><span class="msel-check">✓</span>Rarely</div>
+      <div class="msel-opt" data-value="no" onclick="mselToggleOption('upload','no')"><span class="msel-check">✓</span>Stopped</div>
+    </div>
+  </div>
+  <div class="msel" id="msel-lang">
+    <button type="button" class="msel-btn" onclick="mselToggleOpen('msel-lang')">
+      <span class="msel-label" id="msel-lang-label">All Languages</span><span class="msel-caret">▾</span>
+    </button>
+    <div class="msel-panel">
+      <div class="msel-opt" data-value="en" onclick="mselToggleOption('lang','en')"><span class="msel-check">✓</span>English</div>
+      <div class="msel-opt" data-value="es" onclick="mselToggleOption('lang','es')"><span class="msel-check">✓</span>Spanish</div>
+      <div class="msel-opt" data-value="ru" onclick="mselToggleOption('lang','ru')"><span class="msel-check">✓</span>Russian</div>
+      <div class="msel-opt" data-value="id" onclick="mselToggleOption('lang','id')"><span class="msel-check">✓</span>Indonesian</div>
+      <div class="msel-opt" data-value="pt" onclick="mselToggleOption('lang','pt')"><span class="msel-check">✓</span>Portuguese</div>
+      <div class="msel-opt" data-value="vi" onclick="mselToggleOption('lang','vi')"><span class="msel-check">✓</span>Vietnamese</div>
+      <div class="msel-opt" data-value="pl" onclick="mselToggleOption('lang','pl')"><span class="msel-check">✓</span>Polish</div>
+      <div class="msel-opt" data-value="de" onclick="mselToggleOption('lang','de')"><span class="msel-check">✓</span>German</div>
+      <div class="msel-opt" data-value="ko" onclick="mselToggleOption('lang','ko')"><span class="msel-check">✓</span>Korean</div>
+      <div class="msel-opt" data-value="ja" onclick="mselToggleOption('lang','ja')"><span class="msel-check">✓</span>Japanese</div>
+      <div class="msel-opt" data-value="fi" onclick="mselToggleOption('lang','fi')"><span class="msel-check">✓</span>Finnish</div>
+      <div class="msel-opt" data-value="other" onclick="mselToggleOption('lang','other')"><span class="msel-check">✓</span>Other</div>
+    </div>
+  </div>
   <select id="f-growth" onchange="render()">
     <option value="">Any Growth</option>
     <option value="g250k">250K+ subs</option>
@@ -834,8 +864,8 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
         <th class="col-header" style="text-align:left;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('name')" id="th-name">Channel<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subscribers')" id="th-subscribers">Subscribers<span class="sa">↕</span></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('totalViews')" id="th-totalViews">Total Views<span class="sa">↕</span></th>
-        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em" id="th-subgrowth-window">(24H)</span><span class="sa">↕</span><button class="col-null-btn admin-only" onclick="event.stopPropagation(); nullifyColumn('subs')" title="Nullify Sub Growth for all creators">RESET</button></th>
-        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em" id="th-viewgrowth-window">(24H)</span><span class="sa">↕</span><button class="col-null-btn admin-only" onclick="event.stopPropagation(); nullifyColumn('views')" title="Nullify View Growth for all creators">RESET</button></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('subGrowth')" id="th-subGrowth">Sub Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em" id="th-subgrowth-window">(24H)</span><span class="col-warn" id="th-subgrowth-warn" title="Growth was recently reset — figures will repopulate after the next fetch, in a few hours.">⚠</span><span class="sa">↕</span><button class="col-null-btn admin-only" onclick="event.stopPropagation(); nullifyColumn('subs')" title="Nullify Sub Growth for all creators">RESET</button></th>
+        <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('viewGrowth')" id="th-viewGrowth">View Growth <span style="opacity:.5;font-size:8px;letter-spacing:.08em" id="th-viewgrowth-window">(24H)</span><span class="col-warn" id="th-viewgrowth-warn" title="Growth was recently reset — figures will repopulate after the next fetch, in a few hours.">⚠</span><span class="sa">↕</span><button class="col-null-btn admin-only" onclick="event.stopPropagation(); nullifyColumn('views')" title="Nullify View Growth for all creators">RESET</button></th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);">Language</th>
         <th class="col-header" style="text-align:center;border:none;background:var(--bg2);border-bottom:2px solid var(--border2);" onclick="sortBy('uploading')" id="th-uploading">Uploading<span class="sa">↕</span></th>
       </tr>
@@ -1351,6 +1381,55 @@ let editId = null;
 let nextId = Math.max(...creators.map(c => c.id || 0), 0) + 1;
 let fetchStopped = false;
 
+// ── MULTI-SELECT FILTER STATE (Upload Status / Language) ──
+const filterState = { upload: new Set(), lang: new Set() };
+const mselLabels = {
+  upload: { yes: 'Actively Uploading', rare: 'Rarely', no: 'Stopped' },
+  lang: { en: 'English', es: 'Spanish', ru: 'Russian', id: 'Indonesian', pt: 'Portuguese', vi: 'Vietnamese', pl: 'Polish', de: 'German', ko: 'Korean', ja: 'Japanese', fi: 'Finnish', other: 'Other' }
+};
+const mselAllLabel = { upload: 'All Upload Status', lang: 'All Languages' };
+
+function mselToggleOpen(id) {
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.msel.open').forEach(m => m.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.msel')) document.querySelectorAll('.msel.open').forEach(m => m.classList.remove('open'));
+});
+
+function mselToggleOption(key, value) {
+  const set = filterState[key];
+  if (set.has(value)) set.delete(value); else set.add(value);
+  mselRefreshUI(key);
+  render();
+}
+
+function mselRefreshUI(key) {
+  const mselId = key === 'upload' ? 'msel-upload' : 'msel-lang';
+  const panel = document.querySelector(`#${mselId} .msel-panel`);
+  const set = filterState[key];
+  if (panel) {
+    panel.querySelectorAll('.msel-opt').forEach(opt => {
+      opt.classList.toggle('checked', set.has(opt.dataset.value));
+    });
+  }
+  const labelEl = document.getElementById(`${mselId}-label`);
+  if (labelEl) {
+    if (set.size === 0) labelEl.textContent = mselAllLabel[key];
+    else if (set.size === 1) labelEl.textContent = mselLabels[key][[...set][0]] || [...set][0];
+    else labelEl.textContent = `${set.size} selected`;
+  }
+}
+
+function mselResetAll() {
+  filterState.upload.clear();
+  filterState.lang.clear();
+  mselRefreshUI('upload');
+  mselRefreshUI('lang');
+}
+
 function setSyncDot(state) {
   const d = document.getElementById('sync-dot');
   if (!d) return;
@@ -1529,6 +1608,14 @@ function renderStats() {
     const vg = document.getElementById('th-viewgrowth-window'); if (vg) vg.textContent = windowLabel;
   }
 
+  // Show a warning next to the growth headers if the previous snapshot was just wiped (nullified)
+  const subsHaveData  = creators.filter(c => c.subscribers != null);
+  const viewsHaveData = creators.filter(c => c.totalViews  != null);
+  const subsNulled  = subsHaveData.length  && subsHaveData.filter(c => c.prevSubscribers == null).length  / subsHaveData.length  >= 0.5;
+  const viewsNulled = viewsHaveData.length && viewsHaveData.filter(c => c.prevTotalViews  == null).length / viewsHaveData.length >= 0.5;
+  const sgWarn = document.getElementById('th-subgrowth-warn');  if (sgWarn) sgWarn.classList.toggle('show', !!subsNulled);
+  const vgWarn = document.getElementById('th-viewgrowth-warn'); if (vgWarn) vgWarn.classList.toggle('show', !!viewsNulled);
+
   const withSubG = creators.filter(c => fmtDelta(c) != null);
   if (withSubG.length) {
     const top = withSubG.reduce((a,b) => (fmtDelta(b) > fmtDelta(a) ? b : a));
@@ -1590,19 +1677,23 @@ function renderStats() {
 function render() {
   const q = document.getElementById('search').value.toLowerCase().trim();
   const ft = document.getElementById('f-type').value;
-  const fu = document.getElementById('f-upload').value;
-  const fl = document.getElementById('f-lang').value;
   const fg = document.getElementById('f-growth').value;
 
   let data = [...creators];
   if (q) data = data.filter(c => c.name.toLowerCase().includes(q));
   if (ft) data = data.filter(c => c.type === ft);
-  if (fu === "active-or-rare") data = data.filter(c => c.uploading === "yes" || c.uploading === "rare");
-  else if (fu) data = data.filter(c => c.uploading === fu);
+  if (filterState.upload.size) data = data.filter(c => filterState.upload.has(c.uploading));
   const langMap = { en: 'english', es: 'spanish', ru: 'russian', id: 'indonesian', pt: 'portuguese', vi: 'vietnamese', pl: 'polish', de: 'german', ko: 'korean', ja: 'japanese', fi: 'finnish' };
-  if (fl === 'en') data = data.filter(c => !c.language || c.language.toLowerCase() === 'english');
-  else if (fl && fl !== 'other' && langMap[fl]) data = data.filter(c => c.language && c.language.toLowerCase() === langMap[fl]);
-  else if (fl === 'other') data = data.filter(c => c.language && !Object.values(langMap).includes(c.language.toLowerCase()));
+  if (filterState.lang.size) {
+    data = data.filter(c => {
+      const lang = c.language ? c.language.toLowerCase() : 'english';
+      return [...filterState.lang].some(fl => {
+        if (fl === 'en') return lang === 'english';
+        if (fl === 'other') return !Object.values(langMap).includes(lang);
+        return langMap[fl] && lang === langMap[fl];
+      });
+    });
+  }
   if (fg) {
     if (fg === 'neg') data = data.filter(c => { const d = fmtDelta(c) ?? c.growth30; return d != null && d < 0; });
     else {
@@ -1705,9 +1796,8 @@ function sortBy(k) {
 function resetFilters() {
   document.getElementById('search').value='';
   document.getElementById('f-type').value='';
-  document.getElementById('f-upload').value='';
-  document.getElementById('f-lang').value='';
   document.getElementById('f-growth').value='';
+  mselResetAll();
   render();
 }
 
@@ -1873,23 +1963,6 @@ function nullifyColumn(kind) {
   render();
   renderStats();
   persist();
-  showNullifyToast(`${label} cleared for all creators — it'll be back once the next fetch runs in a few hours.`);
-}
-
-let nullifyToastTimer = null;
-function showNullifyToast(msg) {
-  const toast = document.getElementById('nullify-toast');
-  const text = document.getElementById('nullify-toast-text');
-  if (!toast || !text) return;
-  text.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(nullifyToastTimer);
-  nullifyToastTimer = setTimeout(hideNullifyToast, 8000);
-}
-function hideNullifyToast() {
-  const toast = document.getElementById('nullify-toast');
-  if (toast) toast.classList.remove('show');
-  clearTimeout(nullifyToastTimer);
 }
 
 // Flash a table row green to show it was just updated
