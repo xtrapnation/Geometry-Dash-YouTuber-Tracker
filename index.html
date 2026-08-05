@@ -503,7 +503,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
   background: rgba(46,232,165,.13); color: var(--green); border: 1px solid rgba(46,232,165,.3);
   letter-spacing: .06em; font-weight: 700; text-transform: uppercase;
 }
-  ```css
+
 /* === HEADER BRANDING UPGRADE === */
 
 /* === LAYOUT FIXED VIA #sticky-top WRAPPER === */
@@ -630,7 +630,7 @@ body.is-admin .admin-only.upl-btns { display: flex !important; }
 .nav-header {
   position: sticky;
   top: 0;
-  z-index: 300;
+  z-index: 450;
   background: rgba(8,10,16,0.97);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
@@ -1063,7 +1063,7 @@ body.light-theme .nav-header {
 <div class="controls-bar">
   <div class="search-wrap">
     <span class="si">⌕</span>
-    <input type="text" class="search-input" id="search" placeholder="Search creators…" oninput="render()">
+    <input type="text" class="search-input" id="search" placeholder="Search creators…" oninput="debouncedRender()">
   </div>
   <select id="f-type" onchange="render()">
     <option value="">All Types</option>
@@ -1641,7 +1641,7 @@ function buildDefaults() {
     id: i + 1,
     name: r[0], url: r[1], type: r[2], uploading: r[3], language: r[4],
     subscribers: null, totalViews: null, growth30: null, views30: null,
-    sbUrl: null
+    sbUrl: null, channelId: null
   }));
 }
 
@@ -1737,6 +1737,7 @@ async function persist() {
         prevFetchedAt:   c.prevFetchedAt   != null ? { integerValue: String(c.prevFetchedAt)   } : { nullValue: null },
         fetchedAt:       c.fetchedAt       != null ? { integerValue: String(c.fetchedAt)       } : { nullValue: null },
         sbUrl:       { stringValue: c.sbUrl ?? '' },
+        channelId:   { stringValue: c.channelId ?? '' },
       }}}))}},
       updatedAt: { timestampValue: new Date().toISOString() }
     };
@@ -1949,6 +1950,11 @@ function renderStats() {
   }
 }
 
+let _searchDebounceTimer = null;
+function debouncedRender() {
+  clearTimeout(_searchDebounceTimer);
+  _searchDebounceTimer = setTimeout(render, 150);
+}
 function render() {
   const q = document.getElementById('search').value.toLowerCase().trim();
   const ft = document.getElementById('f-type').value;
@@ -2168,8 +2174,9 @@ async function fetchOne(creatorId) {
     const p = parseUrl(c.url);
     if (!p) throw new Error('Cannot parse URL');
 
-    let channelId = p.type === 'channelId' ? p.raw : await resolveHandle(p.raw);
+    let channelId = c.channelId || (p.type === 'channelId' ? p.raw : await resolveHandle(p.raw));
     if (!channelId) throw new Error('Handle not found');
+    c.channelId = channelId;
 
     const r = await fetchWithTimeout(`${YT_BASE}/channels?part=statistics,snippet&id=${channelId}&key=${YT_API_KEY}`);
     const j = await r.json();
@@ -2278,12 +2285,13 @@ async function startFetchAll() {
   fill.style.width = '5%';
 
   const handleCreators   = []; // need handle→ID lookup
-  const channelIdCreators = []; // already have UC... ID
+  const channelIdCreators = []; // already resolved (cached channelId or direct channel URL)
 
   for (const c of creators) {
+    if (c.channelId) { c._channelId = c.channelId; channelIdCreators.push(c); continue; }
     const p = parseUrl(c.url);
     if (!p) continue;
-    if (p.type === 'channelId') { c._channelId = p.raw; channelIdCreators.push(c); }
+    if (p.type === 'channelId') { c._channelId = p.raw; c.channelId = p.raw; channelIdCreators.push(c); }
     else                        { c._handle = p.raw;    handleCreators.push(c); }
   }
 
@@ -2295,7 +2303,7 @@ async function startFetchAll() {
   let resolved = 0;
   for (const c of handleCreators) {
     const id = handleMap[c._handle.toLowerCase()];
-    if (id) { c._channelId = id; resolved++; }
+    if (id) { c._channelId = id; c.channelId = id; resolved++; }
   }
   status.textContent = `Step 2/3 — Resolved ${resolved}/${handleCreators.length} handles. Fetching stats…`;
 
@@ -2405,7 +2413,10 @@ async function saveC() {
   };
   if (editId != null) {
     const idx = creators.findIndex(c => c.id === editId);
-    if (idx !== -1) creators[idx] = { ...creators[idx], ...obj };
+    if (idx !== -1) {
+      if (creators[idx].url !== obj.url) obj.channelId = null;
+      creators[idx] = { ...creators[idx], ...obj };
+    }
   } else {
     obj.id = nextId++;
     creators.push(obj);
