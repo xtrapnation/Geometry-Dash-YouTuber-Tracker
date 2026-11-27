@@ -68,7 +68,7 @@
   --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --hdr-h: 64px;
   --tb-h: 60px;
-  --wrap: 1440px;
+  --wrap: 1680px;
   color-scheme: dark;
 }
 :root[data-theme="light"] {
@@ -112,7 +112,6 @@ body {
     radial-gradient(1200px 420px at 15% -120px, var(--glow), transparent 70%),
     radial-gradient(900px 380px at 95% -160px, rgba(246, 181, 36, .06), transparent 70%),
     var(--bg);
-  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font);
   font-size: 14px;
@@ -311,11 +310,12 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .tbl th .col-reset { margin-left: 6px; height: 20px; padding: 0 6px; font-size: 10px; letter-spacing: .04em; border-radius: 5px; border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent); background: transparent; color: var(--rose); }
 .th-left { text-align: left !important; }
 .th-center { text-align: center !important; }
-.col-rank { width: 64px; }
-.col-sub, .col-views { width: 13%; }
-.col-g { width: 12%; }
-.col-uploads { width: 8%; }
-.col-recent { width: 186px; }
+.col-rank { width: 60px; }
+.col-sub { width: 112px; }
+.col-views { width: 112px; }
+.col-g { width: 128px; }
+.col-uploads { width: 96px; }
+.col-recent { width: 172px; }
 .c-recent .win-pick { margin-left: 4px; }
 .win-pick { display: inline-flex; padding: 2px; gap: 1px; border-radius: 7px; background: var(--surface-3); vertical-align: middle; }
 .win-pick button { height: 22px; padding: 0 7px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-size: 10.5px; font-weight: 700; letter-spacing: .02em; text-transform: none; }
@@ -327,8 +327,8 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 @media (max-width: 860px) { .mobile-only { display: inline-flex !important; } }
 .recent-n { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
 .recent-n.zero { color: var(--muted); font-weight: 600; }
-.col-upl { width: 118px; }
-.col-admin { width: 104px; }
+.col-upl { width: 112px; }
+.col-admin { width: 84px; }
 .tbl td { padding: 0 12px; height: 64px; border-bottom: 1px solid var(--line); text-align: center; vertical-align: middle; }
 .tbl tbody tr:last-child td { border-bottom: 0; }
 .tbl tbody tr { transition: background .12s; }
@@ -428,11 +428,12 @@ dialog[open] { animation: pop .16s ease; }
 .toast.ok { border-color: color-mix(in srgb, var(--green) 45%, transparent); }
 
 /* ═══════════════ RESPONSIVE ═══════════════ */
-@media (max-width: 1280px) {
+@media (max-width: 1440px) {
   .col-uploads, .tbl .c-uploads { display: none; }
 }
 @media (max-width: 1180px) {
-  .col-sub, .col-views { width: 12%; }
+  .col-sub, .col-views { width: 100px; }
+  .col-g { width: 116px; }
   .mover { min-width: 140px; }
 }
 @media (max-width: 1000px) {
@@ -513,6 +514,11 @@ dialog[open] { animation: pop .16s ease; }
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+</svg>
 
 <!-- ═══════════════ HEADER ═══════════════ -->
 <header class="hdr" id="hdr">
@@ -995,6 +1001,7 @@ function mergeNewerStats(server) {
 /* ═══════════════ DERIVED DATA ═══════════════ */
 let commonWindow = null; // most channels' growth period, shown in the column headers
 function afterDataChange() {
+  dataVersion++;
   const ranked = state.creators.filter((c) => c.subscribers != null).sort((a, b) => b.subscribers - a.subscribers);
   state.creators.forEach((c) => (c._rank = null));
   ranked.forEach((c, i) => (c._rank = i + 1));
@@ -1197,16 +1204,48 @@ function rowHtml(c) {
     <td class="c-g2" data-label="View growth">${pill(vd, 'views', 100)}</td>
     <td class="c-upl" data-label="Uploading"><span class="status ${esc(c.uploading)}"><i></i>${UPLOAD[c.uploading] || '—'}</span></td>
     <td class="c-admin admin-only">
-      <button class="row-btn" data-act="fetch" title="Fetch this channel's stats now"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
-      <button class="row-btn" data-act="edit" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+      <button class="row-btn" data-act="fetch" title="Fetch this channel's stats now"><svg width="14" height="14"><use href="#i-refresh"/></svg></button>
+      <button class="row-btn" data-act="edit" title="Edit"><svg width="14" height="14"><use href="#i-edit"/></svg></button>
     </td>
   </tr>`;
 }
 
+// Rows are built once per data change and kept. Sorting and filtering only reorder
+// the existing rows, so nothing is re-parsed and avatars aren't reloaded.
+let dataVersion = 0, rowsVersion = -1, renderToken = 0;
+const rowEls = new Map();
+function buildRows() {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = state.creators.map(rowHtml).join('');
+  rowEls.clear();
+  for (const tr of tpl.content.children) rowEls.set(Number(tr.dataset.id), tr);
+  rowsVersion = dataVersion;
+}
+function updateRecentCells() {
+  const label = `Uploads, last ${state.uploadWin === 1 ? '24h' : state.uploadWin + 'd'}`;
+  for (const c of state.creators) {
+    const td = rowEls.get(c.id)?.querySelector('.c-recent');
+    if (td) { td.innerHTML = recentHtml(c); td.dataset.label = label; }
+  }
+}
+
 function render() {
+  if (rowsVersion !== dataVersion) buildRows();
   const data = sorted(filtered());
   const tbody = $('#tbody');
-  tbody.innerHTML = data.map(rowHtml).join('');
+  const rows = data.map((c) => rowEls.get(c.id)).filter(Boolean);
+  // First screenful now, the rest right after, so sorting/filtering feels instant even with 900+ rows.
+  const token = ++renderToken;
+  const FIRST = 80;
+  tbody.replaceChildren(...rows.slice(0, FIRST));
+  if (rows.length > FIRST) {
+    setTimeout(() => {
+      if (token !== renderToken) return;   // a newer render already replaced these rows
+      const frag = document.createDocumentFragment();
+      frag.append(...rows.slice(FIRST));
+      tbody.append(frag);
+    }, 0);
+  }
   $('#empty').classList.toggle('show', !data.length && !!state.source);
   const total = state.creators.length;
   $('#count').innerHTML = data.length === total ? `<b>${total}</b> creators` : `<b>${data.length}</b> of ${total}`;
@@ -1629,7 +1668,8 @@ function wire() {
     e.stopPropagation();
     state.uploadWin = Number(b.dataset.win);
     $$('.win-pick [data-win]').forEach((x) => x.classList.toggle('on', Number(x.dataset.win) === state.uploadWin));
-    render();
+    updateRecentCells();
+    if (state.sortKey === 'recent') render();
   }));
   $('#tbl thead').addEventListener('click', (e) => {
     const reset = e.target.closest('[data-reset]');
