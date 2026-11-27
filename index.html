@@ -322,6 +322,10 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .win-pick button:hover { color: var(--text); }
 .win-pick button.on { background: var(--surface); color: var(--accent); box-shadow: 0 0 0 1px var(--line-2); }
 .mobile-only { display: none !important; }
+.c-open { display: none; }
+.c-open a { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--text-2); text-decoration: none; font-size: 12.5px; font-weight: 600; }
+.sort-pick { gap: 6px; align-items: center; }
+.sort-pick .select { height: 36px; }
 .toolbar .win-pick { padding: 3px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); }
 .toolbar .win-pick button { height: 28px; padding: 0 10px; font-size: 12.5px; font-weight: 600; border-radius: 7px; }
 @media (max-width: 860px) { .mobile-only { display: inline-flex !important; } }
@@ -454,21 +458,42 @@ dialog[open] { animation: pop .16s ease; }
   .table-card { background: transparent; border: 0; box-shadow: none; overflow: visible; }
   .tbl, .tbl tbody { display: block; }
   .tbl colgroup, .tbl thead { display: none; }
+  /* compact rows: rank · avatar · name · subs. Tap a row to expand the rest. */
   .tbl tbody tr {
-    display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px;
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+    display: grid; grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0 10px; align-items: center;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px 6px 8px; margin-bottom: 5px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
-  .tbl td { display: block; height: auto; padding: 0; border: 0; text-align: left; }
-  .tbl .c-views, .tbl .c-uploads { display: block; }
-  .tbl tbody td.c-uploads { grid-column: 2; } .tbl tbody td.c-recent { grid-column: 3; }
-  .tbl td.c-rank { grid-row: 1; grid-column: 1; align-self: center; }
-  .tbl td.c-name { grid-row: 1; grid-column: 2 / -1; }
-  .tbl td[data-label] { grid-column: auto; }
-  .tbl td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-  .tbl td.c-sub { grid-column: 2; } .tbl td.c-views { grid-column: 3; }
-  .tbl td.c-g1 { grid-column: 2; } .tbl td.c-g2 { grid-column: 3; }
-  .tbl td.c-upl { grid-column: 2; }
-  body.is-admin .tbl td.c-admin { display: flex !important; grid-column: 3; align-items: flex-end; gap: 4px; }
+  .tbl tbody tr:hover { background: var(--surface); }
+  .tbl tbody tr.open { gap: 12px 10px; border-color: var(--line-2); padding-bottom: 14px; }
+  .tbl tbody td { display: none; height: auto; padding: 0; border: 0; text-align: left; }
+  .tbl tbody td.c-rank { display: block; grid-row: 1; grid-column: 1; }
+  .tbl tbody td.c-name { display: block; grid-row: 1; grid-column: 2 / 4; }
+  .tbl tbody td.c-sub { display: flex; align-items: center; gap: 8px; grid-row: 1; grid-column: 4; justify-self: end; }
+  .tbl tbody td.c-sub::after { content: ''; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+  .tbl tbody tr.open td.c-sub::after { transform: rotate(-135deg) translate(-2px, 0); }
+  .rank { min-width: 24px; height: 24px; font-size: 11.5px; border-radius: 7px; padding: 0 4px; }
+  .c-name .av, .c-name .av-ph { width: 30px; height: 30px; }
+  .ch { gap: 10px; }
+  /* tags sit right after the name on the same line */
+  .ch-text { flex-direction: row; align-items: center; gap: 6px; }
+  .ch-name { font-size: 14px; min-width: 0; }
+  .tags { flex-wrap: nowrap; flex-shrink: 0; gap: 4px; }
+  .tags .tag { font-size: 9px; padding: 0 5px; line-height: 15px; }
+  /* expanded details, two per line */
+  .tbl tbody tr.open td.c-views, .tbl tbody tr.open td.c-uploads, .tbl tbody tr.open td.c-recent,
+  .tbl tbody tr.open td.c-g1, .tbl tbody tr.open td.c-g2, .tbl tbody tr.open td.c-upl, .tbl tbody tr.open td.c-open { display: block; }
+  .tbl tbody tr.open td:nth-child(n+4) { grid-column: 2; }
+  .tbl tbody tr.open td.c-uploads, .tbl tbody tr.open td.c-g2, .tbl tbody tr.open td.c-upl { grid-column: 3 / 5; }
+  .tbl tbody td.c-views { order: 1; } .tbl tbody td.c-uploads { order: 2; }
+  .tbl tbody td.c-g1 { order: 3; } .tbl tbody td.c-g2 { order: 4; }
+  .tbl tbody td.c-recent { order: 5; } .tbl tbody td.c-upl { order: 6; }
+  .tbl tbody td.c-open { order: 7; } .tbl tbody td.c-admin { order: 8; }
+  .tbl tbody td[data-label]::before { content: attr(data-label); display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .tbl tbody td.c-sub::before { display: none; }
+  .tbl tbody tr.open td.c-open { grid-column: 2 / 5; }
+  body.is-admin .tbl tbody tr.open td.c-admin { display: flex !important; grid-column: 2 / 5; gap: 6px; }
+  body.is-admin .tbl tbody tr:not(.open) td.c-admin { display: none !important; }
   .skel { display: none !important; }
   .count { display: none; }
 }
@@ -644,6 +669,18 @@ dialog[open] { animation: pop .16s ease; }
         <option value="1000">+1K subs</option>
         <option value="neg">Losing subs</option>
       </select>
+      <span class="sort-pick mobile-only">
+        <select class="select" id="m-sort" aria-label="Sort by">
+          <option value="subscribers">Sort: Subscribers</option>
+          <option value="totalViews">Sort: Views</option>
+          <option value="videoCount">Sort: Total uploads</option>
+          <option value="recent">Sort: Recent uploads</option>
+          <option value="subGrowth">Sort: Sub growth</option>
+          <option value="viewGrowth">Sort: View growth</option>
+          <option value="name">Sort: Name</option>
+        </select>
+        <button class="btn icon" id="m-dir" type="button" aria-label="Reverse sort order">↓</button>
+      </span>
       <span class="win-pick mobile-only" role="group" aria-label="Upload period"><button data-win="1" class="on">Uploads 24h</button><button data-win="7">7d</button><button data-win="28">28d</button></span>
       <div class="tb-right">
         <button class="btn ghost sm" id="clear-btn">Clear filters</button>
@@ -1204,6 +1241,7 @@ function rowHtml(c) {
     <td class="c-g1" data-label="Sub growth">${pill(sd, 'subs', 1)}</td>
     <td class="c-g2" data-label="View growth">${pill(vd, 'views', 100)}</td>
     <td class="c-upl" data-label="Uploading"><span class="status ${esc(c.uploading)}"><i></i>${UPLOAD[c.uploading] || '—'}</span></td>
+    <td class="c-open"><a href="${esc(safeUrl(c.url))}" target="_blank" rel="noopener">Open on YouTube ↗</a></td>
     <td class="c-admin admin-only">
       <button class="row-btn" data-act="fetch" title="Fetch this channel's stats now"><svg width="14" height="14"><use href="#i-refresh"/></svg></button>
       <button class="row-btn" data-act="edit" title="Edit"><svg width="14" height="14"><use href="#i-edit"/></svg></button>
@@ -1214,6 +1252,7 @@ function rowHtml(c) {
 // Rows are built once per data change and kept. Sorting and filtering only reorder
 // the existing rows, so nothing is re-parsed and avatars aren't reloaded.
 let dataVersion = 0, rowsVersion = -1, renderToken = 0;
+const compact = matchMedia('(max-width: 860px)'); // phone layout: collapsible rows
 const rowEls = new Map();
 function buildRows() {
   const tpl = document.createElement('template');
@@ -1257,6 +1296,9 @@ function render() {
     th.setAttribute('aria-sort', on ? (state.sortDir === 1 ? 'ascending' : 'descending') : 'none');
     $('.arrow', th).textContent = on ? (state.sortDir === 1 ? '↑' : '↓') : '';
   });
+  const ms = $('#m-sort');
+  if ([...ms.options].some((o) => o.value === state.sortKey)) ms.value = state.sortKey;
+  $('#m-dir').textContent = state.sortDir === 1 ? '↑' : '↓';
 }
 function flashRow(id) {
   const tr = $(`#tbody tr[data-id="${id}"]`);
@@ -1656,6 +1698,12 @@ function wire() {
       render();
     });
   });
+  $('#m-sort').addEventListener('change', (e) => {
+    state.sortKey = e.target.value;
+    state.sortDir = state.sortKey === 'name' ? 1 : -1;
+    render();
+  });
+  $('#m-dir').addEventListener('click', () => { state.sortDir *= -1; render(); });
   $('#clear-btn').addEventListener('click', clearFilters);
   $('[data-clear]').addEventListener('click', clearFilters);
   document.addEventListener('click', () => {
@@ -1682,7 +1730,15 @@ function wire() {
     render();
   });
   $('#tbody').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-act]'); if (!b) return;
+    const b = e.target.closest('[data-act]');
+    if (!b) {
+      // Phones: tapping a row opens/closes its details (the "Open on YouTube" link inside still works)
+      if (!compact.matches || e.target.closest('.c-open a')) return;
+      const tr = e.target.closest('tr'); if (!tr) return;
+      e.preventDefault();
+      tr.classList.toggle('open');
+      return;
+    }
     e.preventDefault();
     const id = Number(b.closest('tr').dataset.id);
     const act = b.dataset.act;
