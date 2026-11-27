@@ -323,7 +323,7 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .win-pick button.on { background: var(--surface); color: var(--accent); box-shadow: 0 0 0 1px var(--line-2); }
 .mobile-only { display: none !important; }
 .filters { display: contents; }  /* desktop: the filters just flow in the toolbar row */
-.c-open { display: none; }
+.c-open, .c-key { display: none; }
 .c-open a { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--text-2); text-decoration: none; font-size: 12.5px; font-weight: 600; }
 .sort-pick { gap: 6px; align-items: center; }
 .sort-pick .select { height: 36px; }
@@ -470,9 +470,15 @@ dialog[open] { animation: pop .16s ease; }
   .tbl tbody td { display: none; height: auto; padding: 0; border: 0; text-align: left; }
   .tbl tbody td.c-rank { display: block; grid-row: 1; grid-column: 1; }
   .tbl tbody td.c-name { display: block; grid-row: 1; grid-column: 2 / 4; }
-  .tbl tbody td.c-sub { display: flex; align-items: center; gap: 8px; grid-row: 1; grid-column: 4; justify-self: end; }
-  .tbl tbody td.c-sub::after { content: ''; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
-  .tbl tbody tr.open td.c-sub::after { transform: rotate(-135deg) translate(-2px, 0); }
+  /* right side of a compact row: the value you're currently sorting by */
+  .tbl tbody td.c-key { display: flex; align-items: center; gap: 8px; grid-row: 1; grid-column: 4; justify-self: end; text-align: right; }
+  .tbl tbody td.c-key::after { content: ''; flex-shrink: 0; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+  .tbl tbody tr.open td.c-key::after { transform: rotate(-135deg) translate(-2px, 0); }
+  .key-val { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
+  .key-val .big { font-size: 14px; }
+  .key-val .unit { font-size: 10px; font-weight: 600; color: var(--muted); }
+  .key-val .pill { font-size: 12px; padding: 2px 7px; }
+  .key-val .pill .age { display: none; }
   .rank { min-width: 24px; height: 24px; font-size: 11.5px; border-radius: 7px; padding: 0 4px; }
   .c-name .av, .c-name .av-ph { width: 30px; height: 30px; }
   .ch { gap: 10px; }
@@ -482,16 +488,15 @@ dialog[open] { animation: pop .16s ease; }
   .tags { flex-wrap: nowrap; flex-shrink: 0; gap: 4px; }
   .tags .tag { font-size: 9px; padding: 0 5px; line-height: 15px; }
   /* expanded details, two per line */
-  .tbl tbody tr.open td.c-views, .tbl tbody tr.open td.c-uploads, .tbl tbody tr.open td.c-recent,
+  .tbl tbody tr.open td.c-sub, .tbl tbody tr.open td.c-views, .tbl tbody tr.open td.c-uploads, .tbl tbody tr.open td.c-recent,
   .tbl tbody tr.open td.c-g1, .tbl tbody tr.open td.c-g2, .tbl tbody tr.open td.c-upl, .tbl tbody tr.open td.c-open { display: block; }
   .tbl tbody tr.open td:nth-child(n+4) { grid-column: 2; }
-  .tbl tbody tr.open td.c-uploads, .tbl tbody tr.open td.c-g2, .tbl tbody tr.open td.c-upl { grid-column: 3 / 5; }
-  .tbl tbody td.c-views { order: 1; } .tbl tbody td.c-uploads { order: 2; }
-  .tbl tbody td.c-g1 { order: 3; } .tbl tbody td.c-g2 { order: 4; }
-  .tbl tbody td.c-recent { order: 5; } .tbl tbody td.c-upl { order: 6; }
-  .tbl tbody td.c-open { order: 7; } .tbl tbody td.c-admin { order: 8; }
+  .tbl tbody tr.open td.c-views, .tbl tbody tr.open td.c-recent, .tbl tbody tr.open td.c-g2 { grid-column: 3 / 5; }
+  .tbl tbody td.c-sub { order: 1; } .tbl tbody td.c-views { order: 2; }
+  .tbl tbody td.c-uploads { order: 3; } .tbl tbody td.c-recent { order: 4; }
+  .tbl tbody td.c-g1 { order: 5; } .tbl tbody td.c-g2 { order: 6; }
+  .tbl tbody td.c-upl { order: 7; } .tbl tbody td.c-open { order: 8; } .tbl tbody td.c-admin { order: 9; }
   .tbl tbody td[data-label]::before { content: attr(data-label); display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-  .tbl tbody td.c-sub::before { display: none; }
   .tbl tbody tr.open td.c-open { grid-column: 2 / 5; }
   body.is-admin .tbl tbody tr.open td.c-admin { display: flex !important; grid-column: 2 / 5; gap: 6px; }
   body.is-admin .tbl tbody tr:not(.open) td.c-admin { display: none !important; }
@@ -1234,6 +1239,33 @@ function recentHtml(c) {
   const capped = state.uploadWin === 28 && c.uploadsCapped;
   return `<span class="recent-n${n === 0 ? ' zero' : ''}">${n}${capped ? '+' : ''}</span>`;
 }
+// Phones show one number per row: whatever the list is sorted by.
+function keyHtml(c) {
+  const val = (v, unit, dim) => `<span class="key-val"><span class="big${dim ? ' dim' : ''}">${v}</span>${unit ? `<span class="unit">${unit}</span>` : ''}</span>`;
+  const win = state.uploadWin === 1 ? '24h' : state.uploadWin + 'd';
+  switch (state.sortKey) {
+    case 'totalViews': return val(fmtN(c.totalViews), 'views', c.totalViews == null);
+    case 'videoCount': return val(c.videoCount == null ? '—' : c.videoCount.toLocaleString(), 'videos', c.videoCount == null);
+    case 'recent': {
+      const n = c[`uploads${state.uploadWin}d`];
+      return val(n == null ? '—' : n + (state.uploadWin === 28 && c.uploadsCapped ? '+' : ''), `uploads · ${win}`, !n);
+    }
+    case 'subGrowth': { const d = subDelta(c); return `<span class="key-val"><span class="pill ${tier(d)}">${fmtG(d)}</span><span class="unit">subs</span></span>`; }
+    case 'viewGrowth': { const d = viewDelta(c); return `<span class="key-val"><span class="pill ${tier(d, 100)}">${fmtG(d)}</span><span class="unit">views</span></span>`; }
+    case 'uploading': return `<span class="status ${esc(c.uploading)}"><i></i>${UPLOAD[c.uploading] || '—'}</span>`;
+    default: return val(fmtSubs(c.subscribers), '', c.subscribers == null);
+  }
+}
+let keySig = '';
+function updateKeyCells() {
+  const sig = `${state.sortKey}|${state.uploadWin}|${rowsVersion}`;
+  if (sig === keySig) return;
+  keySig = sig;
+  for (const c of state.creators) {
+    const td = rowEls.get(c.id)?.querySelector('.c-key');
+    if (td) td.innerHTML = keyHtml(c);
+  }
+}
 function rowHtml(c) {
   const sd = subDelta(c), vd = viewDelta(c);
   // Only label the period when it differs from the one in the column header
@@ -1253,6 +1285,7 @@ function rowHtml(c) {
     <td class="c-rank"><span class="rank${r && r <= 3 ? ' r' + r : ''}">${r ?? '—'}</span></td>
     <td class="c-name"><a class="ch" href="${esc(safeUrl(c.url))}" target="_blank" rel="noopener">${avatarHtml(c)}
       <span class="ch-text"><span class="ch-name">${esc(c.name)}</span><span class="tags">${tags}</span></span></a></td>
+    <td class="c-key">${keyHtml(c)}</td>
     <td class="c-sub" data-label="Subscribers"><span class="big${c.subscribers == null ? ' dim' : ''}">${fmtSubs(c.subscribers)}</span></td>
     <td class="c-views" data-label="Views"><span class="tnum${c.totalViews == null ? ' dim' : ''}">${fmtN(c.totalViews)}</span></td>
     <td class="c-uploads" data-label="Total uploads"><span class="tnum${c.videoCount == null ? ' dim' : ''}">${c.videoCount == null ? '—' : c.videoCount.toLocaleString()}</span></td>
@@ -1290,6 +1323,7 @@ function updateRecentCells() {
 
 function render() {
   if (rowsVersion !== dataVersion) buildRows();
+  if (compact.matches) updateKeyCells();
   const data = sorted(filtered());
   const tbody = $('#tbody');
   const rows = data.map((c) => rowEls.get(c.id)).filter(Boolean);
@@ -1723,6 +1757,7 @@ function wire() {
     render();
   });
   $('#m-dir').addEventListener('click', () => { state.sortDir *= -1; render(); });
+  compact.addEventListener('change', () => { if (compact.matches) updateKeyCells(); });
   $('#clear-btn').addEventListener('click', clearFilters);
   $('[data-clear]').addEventListener('click', clearFilters);
   document.addEventListener('click', () => {
@@ -1738,6 +1773,7 @@ function wire() {
     $$('.win-pick [data-win]').forEach((x) => x.classList.toggle('on', Number(x.dataset.win) === state.uploadWin));
     updateRecentCells();
     if (state.sortKey === 'recent') render();
+    else if (compact.matches) updateKeyCells();
   }));
   $('#tbl thead').addEventListener('click', (e) => {
     const reset = e.target.closest('[data-reset]');
