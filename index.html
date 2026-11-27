@@ -153,8 +153,7 @@ svg { flex-shrink: 0; }
 /* ═══════════════ HEADER ═══════════════ */
 .hdr {
   position: sticky; top: 0; z-index: 50;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  background: var(--bg);  /* solid: nothing shows through, and no blur to recompute while scrolling */
   border-bottom: 1px solid var(--line);
 }
 .hdr .wrap { display: flex; align-items: center; gap: 14px; height: 64px; }
@@ -241,9 +240,8 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 
 /* ═══════════════ TOOLBAR ═══════════════ */
 .toolbar {
-  position: sticky; top: var(--hdr-h); z-index: 40;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  position: sticky; top: calc(var(--hdr-h) - 1px); z-index: 40;
+  background: var(--bg);
   border-bottom: 1px solid var(--line);
 }
 .toolbar .wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
@@ -294,7 +292,7 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .table-card { margin: 18px 0 32px; overflow: clip; }
 .tbl { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .tbl thead th {
-  position: sticky; top: calc(var(--hdr-h) + var(--tb-h)); z-index: 5;
+  position: sticky; top: calc(var(--hdr-h) + var(--tb-h) - 2px); z-index: 5;
   background: var(--surface-2); color: var(--muted);
   font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
   text-align: center; padding: 0 12px; height: 42px; border-bottom: 1px solid var(--line-2); white-space: nowrap;
@@ -307,13 +305,15 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .tbl th.sorted { color: var(--accent); }
 .tbl th .arrow { display: inline-block; width: 0; padding-left: 4px; white-space: nowrap; opacity: .8; }
 .tbl th .win { font-weight: 600; opacity: .7; letter-spacing: .04em; margin-left: 4px; }
-.tbl th .col-reset { margin-left: 6px; height: 20px; padding: 0 6px; font-size: 10px; letter-spacing: .04em; border-radius: 5px; border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent); background: transparent; color: var(--rose); }
+.tbl th .col-reset { margin-left: 8px; width: 20px; height: 20px; padding: 0; border-radius: 5px; border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent); background: transparent; color: var(--rose); font-size: 12px; line-height: 1; display: inline-grid; place-items: center; vertical-align: middle; }
+.tbl th .col-reset:hover { background: color-mix(in srgb, var(--rose) 14%, transparent); }
 .th-left { text-align: left !important; }
 .th-center { text-align: center !important; }
 .col-rank { width: 60px; }
 .col-sub { width: 112px; }
 .col-views { width: 112px; }
 .col-g { width: 128px; }
+body.is-admin .col-g { width: 152px; }  /* room for the ↺ reset button */
 .col-uploads { width: 96px; }
 .col-recent { width: 172px; }
 .c-recent .win-pick { margin-left: 4px; }
@@ -505,7 +505,7 @@ dialog[open] { animation: pop .16s ease; }
 }
 @media (max-width: 860px) {
   /* on small screens the filters scroll away with the page instead of covering it */
-  .toolbar { position: static; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 0; }
+  .toolbar { position: static; background: transparent; border-bottom: 0; }
   .toolbar .wrap { padding-top: 4px; padding-bottom: 0; gap: 8px; }
   .search { max-width: none; flex-basis: 100%; }
   .tb-right { margin-left: 0; }
@@ -730,8 +730,8 @@ dialog[open] { animation: pop .16s ease; }
             <th class="c-recent" data-sort="recent" title="Videos uploaded in the chosen period, as of the last update">
               Recent <span class="win-pick" id="win-pick" role="group" aria-label="Upload period"><button data-win="1" class="on">24h</button><button data-win="7">7d</button><button data-win="28">28d</button></span><span class="arrow"></span>
             </th>
-            <th data-sort="subGrowth">Sub growth<span class="arrow"></span><button class="col-reset admin-only" data-reset="subs" title="Clear sub growth for every creator">RESET</button></th>
-            <th data-sort="viewGrowth">View growth<span class="arrow"></span><button class="col-reset admin-only" data-reset="views" title="Clear view growth for every creator">RESET</button></th>
+            <th data-sort="subGrowth">Sub growth<span class="arrow"></span><button class="col-reset admin-only" data-reset="subs" title="Reset sub growth for every creator" aria-label="Reset sub growth for every creator">↺</button></th>
+            <th data-sort="viewGrowth">View growth<span class="arrow"></span><button class="col-reset admin-only" data-reset="views" title="Reset view growth for every creator" aria-label="Reset view growth for every creator">↺</button></th>
             <th data-sort="uploading">Uploading<span class="arrow"></span></th>
             <th class="th-center admin-only">Admin</th>
           </tr>
@@ -742,6 +742,7 @@ dialog[open] { animation: pop .16s ease; }
           <tr class="skel"><td><span class="sk" style="width:22px;margin:auto"></span></td><td><span class="sk" style="width:62%"></span></td><td><span class="sk" style="width:58%;margin-left:auto"></span></td><td class="c-views"><span class="sk" style="width:58%;margin-left:auto"></span></td><td class="c-uploads"><span class="sk" style="width:50%;margin-left:auto"></span></td><td><span class="sk" style="width:40%;margin-left:auto"></span></td><td><span class="sk" style="width:45%;margin-left:auto"></span></td><td><span class="sk" style="width:45%;margin-left:auto"></span></td><td><span class="sk" style="width:50%"></span></td></tr>
         </tbody>
       </table>
+      <div id="more-rows" aria-hidden="true"></div>
       <div class="empty" id="empty">
         <h3>No creators match</h3>
         <p>Try a different search or clear the filters.</p>
@@ -1303,7 +1304,18 @@ function rowHtml(c) {
 
 // Rows are built once per data change and kept. Sorting and filtering only reorder
 // the existing rows, so nothing is re-parsed and avatars aren't reloaded.
-let dataVersion = 0, rowsVersion = -1, renderToken = 0;
+let dataVersion = 0, rowsVersion = -1;
+let currentRows = [], shownCount = 0;
+const CHUNK = 100;
+// Add rows in chunks until there's ~1.5 screens of rows below the visible area.
+function fillRows() {
+  const sentinel = $('#more-rows');
+  while (shownCount < currentRows.length && (shownCount === 0 || sentinel.getBoundingClientRect().top < innerHeight * 2.5)) {
+    const next = currentRows.slice(shownCount, shownCount + CHUNK);
+    $('#tbody').append(...next);
+    shownCount += next.length;
+  }
+}
 const compact = matchMedia('(max-width: 860px)'); // phone layout: collapsible rows
 const rowEls = new Map();
 function buildRows() {
@@ -1325,20 +1337,12 @@ function render() {
   if (rowsVersion !== dataVersion) buildRows();
   if (compact.matches) updateKeyCells();
   const data = sorted(filtered());
-  const tbody = $('#tbody');
-  const rows = data.map((c) => rowEls.get(c.id)).filter(Boolean);
-  // First screenful now, the rest right after, so sorting/filtering feels instant even with 900+ rows.
-  const token = ++renderToken;
-  const FIRST = 80;
-  tbody.replaceChildren(...rows.slice(0, FIRST));
-  if (rows.length > FIRST) {
-    setTimeout(() => {
-      if (token !== renderToken) return;   // a newer render already replaced these rows
-      const frag = document.createDocumentFragment();
-      frag.append(...rows.slice(FIRST));
-      tbody.append(frag);
-    }, 0);
-  }
+  // Only rows near the screen are on the page: 100 now, the next 100 as you scroll down.
+  // That keeps every sort/search/filter cheap instead of re-laying-out all 900+ rows.
+  currentRows = data.map((c) => rowEls.get(c.id)).filter(Boolean);
+  shownCount = 0;
+  $('#tbody').replaceChildren();
+  fillRows();
   $('#empty').classList.toggle('show', !data.length && !!state.source);
   const total = state.creators.length;
   $('#count').innerHTML = data.length === total ? `<b>${total}</b> creators` : `<b>${data.length}</b> of ${total}`;
@@ -1724,7 +1728,7 @@ function wire() {
   });
 
   // toolbar
-  const onSearch = debounce(() => { syncUrl(); render(); }, 120);
+  const onSearch = debounce(() => { syncUrl(); render(); }, 60);
   $('#search').addEventListener('input', (e) => { state.q = e.target.value.trim(); onSearch(); });
   $('#type-seg').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
@@ -1758,6 +1762,9 @@ function wire() {
   });
   $('#m-dir').addEventListener('click', () => { state.sortDir *= -1; render(); });
   compact.addEventListener('change', () => { if (compact.matches) updateKeyCells(); });
+  // load more rows as the end of the list comes into view
+  new IntersectionObserver((entries) => { if (entries[0].isIntersecting) fillRows(); }, { rootMargin: '0px 0px 1500px 0px' }).observe($('#more-rows'));
+  addEventListener('scroll', () => { if (shownCount < currentRows.length) fillRows(); }, { passive: true });
   $('#clear-btn').addEventListener('click', clearFilters);
   $('[data-clear]').addEventListener('click', clearFilters);
   document.addEventListener('click', () => {
