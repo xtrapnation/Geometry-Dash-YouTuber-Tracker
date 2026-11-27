@@ -322,6 +322,7 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .win-pick button:hover { color: var(--text); }
 .win-pick button.on { background: var(--surface); color: var(--accent); box-shadow: 0 0 0 1px var(--line-2); }
 .mobile-only { display: none !important; }
+.filters { display: contents; }  /* desktop: the filters just flow in the toolbar row */
 .c-open { display: none; }
 .c-open a { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--text-2); text-decoration: none; font-size: 12.5px; font-weight: 600; }
 .sort-pick { gap: 6px; align-items: center; }
@@ -503,7 +504,23 @@ dialog[open] { animation: pop .16s ease; }
   .toolbar .wrap { padding-top: 4px; padding-bottom: 0; gap: 8px; }
   .search { max-width: none; flex-basis: 100%; }
   .tb-right { margin-left: 0; }
-  .msel-panel { max-width: calc(100vw - 32px); }
+  /* phones: search on its own line, then every filter in one sideways-scrolling row */
+  .filters {
+    display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; width: calc(100% + 32px);
+    margin: 0 -16px; padding: 2px 16px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters > * { flex-shrink: 0; }
+  .filters .sort-pick { order: -2; }
+  .filters #type-seg { order: -1; }
+  .filters .select, .filters .field-btn { height: 34px; }
+  .sort-pick .select { height: 34px; padding-right: 28px; }
+  .sort-pick .btn.icon { width: 34px; height: 34px; }
+  .toolbar .win-pick button { height: 26px; }
+  /* dropdown menus open as a sheet at the bottom so the scrolling row can't cut them off */
+  .msel-panel { position: fixed; left: 12px; right: 12px; top: auto; bottom: 12px; min-width: 0; max-height: 60vh; padding: 8px; z-index: 80; }
+  .msel-opt { padding: 12px; font-size: 14px; }
+  .tb-right:empty, .tb-right:not(:has(.show)) { display: none; }
   .table-card { margin-top: 12px; }
 }
 @media (max-width: 700px) {
@@ -646,6 +663,7 @@ dialog[open] { animation: pop .16s ease; }
         <input id="search" type="search" placeholder="Search creators" autocomplete="off" aria-label="Search creators">
         <span class="kbd">/</span>
       </div>
+      <div class="filters">
       <div class="seg" id="type-seg" role="group" aria-label="Channel type">
         <button class="on" data-type="">All</button>
         <button data-type="regular">Longform</button>
@@ -682,6 +700,7 @@ dialog[open] { animation: pop .16s ease; }
         <button class="btn icon" id="m-dir" type="button" aria-label="Reverse sort order">↓</button>
       </span>
       <span class="win-pick mobile-only" role="group" aria-label="Upload period"><button data-win="1" class="on">Uploads 24h</button><button data-win="7">7d</button><button data-win="28">28d</button></span>
+      </div>
       <div class="tb-right">
         <button class="btn ghost sm" id="clear-btn">Clear filters</button>
         <span class="count" id="count"></span>
