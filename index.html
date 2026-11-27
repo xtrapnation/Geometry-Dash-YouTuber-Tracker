@@ -177,6 +177,7 @@ svg { flex-shrink: 0; }
 .admin-only { display: none !important; }
 body.is-admin .admin-only { display: inline-flex !important; }
 body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !important; }
+body.is-admin col.admin-only { display: table-column !important; }
 .pop-wrap { position: relative; }
 .popover {
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; width: 340px;
@@ -310,11 +311,9 @@ body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !
 .th-left { text-align: left !important; }
 .th-center { text-align: center !important; }
 .col-rank { width: 60px; }
-.col-sub { width: 112px; }
-.col-views { width: 112px; }
-.col-g { width: 128px; }
+/* Channel gets a set share; the number columns without a width split the rest evenly */
+.col-name { width: 22%; }
 body.is-admin .col-g { width: 152px; }  /* room for the ↺ reset button */
-.col-uploads { width: 96px; }
 .col-recent { width: 172px; }
 .c-recent .win-pick { margin-left: 4px; }
 .win-pick { display: inline-flex; padding: 2px; gap: 1px; border-radius: 7px; background: var(--surface-3); vertical-align: middle; }
@@ -332,7 +331,6 @@ body.is-admin .col-g { width: 152px; }  /* room for the ↺ reset button */
 @media (max-width: 860px) { .mobile-only { display: inline-flex !important; } }
 .recent-n { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
 .recent-n.zero { color: var(--muted); font-weight: 600; }
-.col-upl { width: 112px; }
 .col-admin { width: 84px; }
 .tbl td { padding: 0 12px; height: 64px; border-bottom: 1px solid var(--line); text-align: center; vertical-align: middle; }
 .tbl tbody tr:last-child td { border-bottom: 0; }
@@ -437,8 +435,10 @@ dialog[open] { animation: pop .16s ease; }
   .col-uploads, .tbl .c-uploads { display: none; }
 }
 @media (max-width: 1180px) {
-  .col-sub, .col-views { width: 100px; }
-  .col-g { width: 116px; }
+  .col-name { width: 20%; }
+  .col-recent { width: 136px; }
+  .recent-lbl { display: none; }
+  .c-recent .win-pick { margin-left: 0; }
   .mover { min-width: 140px; }
 }
 @media (max-width: 1000px) {
@@ -718,7 +718,7 @@ dialog[open] { animation: pop .16s ease; }
     <div class="card table-card">
       <table class="tbl" id="tbl">
         <colgroup>
-          <col class="col-rank"><col><col class="col-sub"><col class="col-views"><col class="col-uploads"><col class="col-recent"><col class="col-g"><col class="col-g"><col class="col-upl"><col class="col-admin admin-only">
+          <col class="col-rank"><col class="col-name"><col class="col-sub"><col class="col-views"><col class="col-uploads"><col class="col-recent"><col class="col-g"><col class="col-g"><col class="col-upl"><col class="col-admin admin-only">
         </colgroup>
         <thead>
           <tr>
@@ -728,7 +728,7 @@ dialog[open] { animation: pop .16s ease; }
             <th class="c-views" data-sort="totalViews">Views<span class="arrow"></span></th>
             <th class="c-uploads" data-sort="videoCount" title="Total videos on the channel">Uploads<span class="arrow"></span></th>
             <th class="c-recent" data-sort="recent" title="Videos uploaded in the chosen period, as of the last update">
-              Recent <span class="win-pick" id="win-pick" role="group" aria-label="Upload period"><button data-win="1" class="on">24h</button><button data-win="7">7d</button><button data-win="28">28d</button></span><span class="arrow"></span>
+              <span class="recent-lbl">Recent</span> <span class="win-pick" id="win-pick" role="group" aria-label="Upload period"><button data-win="1" class="on">24h</button><button data-win="7">7d</button><button data-win="28">28d</button></span><span class="arrow"></span>
             </th>
             <th data-sort="subGrowth">Sub growth<span class="arrow"></span><button class="col-reset admin-only" data-reset="subs" title="Reset sub growth for every creator" aria-label="Reset sub growth for every creator">↺</button></th>
             <th data-sort="viewGrowth">View growth<span class="arrow"></span><button class="col-reset admin-only" data-reset="views" title="Reset view growth for every creator" aria-label="Reset view growth for every creator">↺</button></th>
